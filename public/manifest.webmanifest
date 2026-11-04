@@ -1,0 +1,17 @@
+{
+  "name": "SkopeinSignal · Private Podcast Learning Atelier",
+  "short_name": "SkopeinSignal",
+  "description": "Private podcast learning atelier: triage, transcripts, source-linked understanding, notes, vocabulary review, idea evolution, scholarly resources, historical playback artwork, and real performance recordings — with optional Kimi sign-in for cloud sync and AI features.",
+  "lang": "en",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f4f1",
+  "theme_color": "#e9e7e1",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
