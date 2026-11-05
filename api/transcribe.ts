@@ -688,11 +688,17 @@ transcribeRoutes.post("/cloud", async (c) => {
  */
 transcribeRoutes.get("/models", async (c) => {
   const sidecar = process.env.WHISPER_SIDECAR_URL?.trim();
-  if (!sidecar) return c.json({ error: "Server ASR control group is not configured." }, 404);
-  if (!tokenMatches(c)) return c.json({ error: "Missing or wrong access token." }, 401);
+  // Probe semantics, not a resource request. A 401 here is not an error the
+  // user can act on, it means "you have not pasted the token yet" — the panel
+  // polls this on mount, so answering 401 painted a red console line on every
+  // single page load of a perfectly healthy app. 200 + authorized:false says
+  // the same thing without the noise.
+  if (!sidecar) return c.json({ authorized: false, reason: "not-configured", tiers: [] });
+  if (!tokenMatches(c)) return c.json({ authorized: false, reason: "token-required", tiers: [] });
   try {
     const upstream = await fetch(`${sidecar.replace(/\/$/, "")}/models`, { signal: AbortSignal.timeout(10_000) });
-    return c.json((await upstream.json()) as Record<string, unknown>, upstream.status as 200);
+    const roster = (await upstream.json()) as Record<string, unknown>;
+    return c.json({ authorized: true, ...roster }, upstream.status as 200);
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     return c.json({ error: `Model roster unavailable: ${reason}` }, 502);

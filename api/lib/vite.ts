@@ -5,11 +5,18 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import zlib from "zlib";
+import { installAssetCaching, installCompression } from "./compress";
 
 type App = Hono<{ Bindings: HttpBindings }>;
 
 export function serveStaticFiles(app: App) {
   const distPath = path.resolve(process.cwd(), "dist/public");
+
+  // Both wrappers must be registered before serveStatic so they see the
+  // response it produces. Compression also catches the SPA shell, which is
+  // rendered by notFound() rather than by a route.
+  installCompression(app);
+  installAssetCaching(app);
 
   app.use("*", async (c, next) => {
     await next();

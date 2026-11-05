@@ -21,6 +21,11 @@ interface TierInfo {
 }
 
 interface Roster {
+  // `authorized: false` is the normal answer when no access token has been
+  // pasted yet. The route returns 200 for that case on purpose: a 401 there is
+  // a red console line on every page load for a healthy app.
+  authorized?: boolean
+  reason?: 'token-required' | 'not-configured'
   tiers: TierInfo[]
   default: string
   freeMb: number
@@ -162,9 +167,14 @@ export default function TranscriptionPanel() {
   const refresh = useCallback(async () => {
     try {
       const res = await fetch('/api/transcribe/models', { headers: headers() })
-      if (res.status === 401) { setError(t('Paste the access token to see server models.')); setRoster(null); return }
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      setRoster((await res.json()) as Roster)
+      const body = (await res.json()) as Roster
+      if (body.authorized === false) {
+        setRoster(null)
+        setError(body.reason === 'not-configured' ? '' : t('Paste the access token to see server models.'))
+        return
+      }
+      setRoster(body)
       setError('')
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : '')
