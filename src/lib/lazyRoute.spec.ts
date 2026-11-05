@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { attemptWithTimeout, loadWithRetry, prefetchOnIdle, RouteLoadError } from './lazyRoute'
+import { attemptWithTimeout, bust, loadWithRetry, planRetry, prefetchOnIdle, RouteLoadError, urlFromError } from './lazyRoute'
 
 const never = <T,>() => new Promise<T>(() => {})
 
@@ -66,5 +66,56 @@ describe('prefetchOnIdle', () => {
     cancel()
     vi.unstubAllGlobals()
     vi.useRealTimers()
+  })
+})
+
+
+describe('urlFromError', () => {
+  it('recovers the chunk URL the browser names in a failed dynamic import', () => {
+    const error = new TypeError('Failed to fetch dynamically imported module: https://skopeinsignal.example/assets/SettingsView-DkalfJjN.js')
+    expect(urlFromError(error)).toBe('https://skopeinsignal.example/assets/SettingsView-DkalfJjN.js')
+  })
+
+  it('keeps an existing query string on the recovered URL', () => {
+    const error = new Error('boom https://a.example/assets/x.js?route-retry=1')
+    expect(urlFromError(error)).toContain('?route-retry=1')
+  })
+
+  it('ignores errors that name no URL, so callers fall back to a reload', () => {
+    expect(urlFromError(new Error('Failed to fetch dynamically imported module'))).toBeUndefined()
+    expect(urlFromError(new RouteLoadError('route chunk did not load within 18000ms', true))).toBeUndefined()
+  })
+})
+
+describe('bust', () => {
+  it('produces a fresh module-map key per generation', () => {
+    const first = bust('https://a.example/assets/x.js', 1)
+    const second = bust('https://a.example/assets/x.js', 2)
+    expect(first).toBe('https://a.example/assets/x.js?route-retry=1')
+    expect(second).not.toBe(first)
+  })
+
+  it('overwrites an older attempt instead of stacking parameters', () => {
+    expect(bust('https://a.example/assets/x.js?route-retry=1', 3)).toBe('https://a.example/assets/x.js?route-retry=3')
+  })
+})
+
+describe('planRetry', () => {
+  it('reuses the in-flight request when a load timed out', () => {
+    expect(planRetry(new RouteLoadError('too slow', true), true, 2)).toEqual({ kind: 'reuse' })
+  })
+
+  it('busts the URL when the import was rejected', () => {
+    const error = new TypeError('Failed to fetch dynamically imported module: https://a.example/assets/x.js')
+    expect(planRetry(error, true, 1)).toEqual({ kind: 'bust', url: 'https://a.example/assets/x.js?route-retry=1' })
+  })
+
+  it('stops busting once a busted retry has already failed (dependency pin)', () => {
+    const error = new TypeError('Failed to fetch dynamically imported module: https://a.example/assets/x.js')
+    expect(planRetry(error, true, 2)).toEqual({ kind: 'reload' })
+  })
+
+  it('falls back to a reload when nothing usable is left', () => {
+    expect(planRetry(new Error('Failed to fetch dynamically imported module'), false, 2)).toEqual({ kind: 'reload' })
   })
 })

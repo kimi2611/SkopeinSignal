@@ -15,23 +15,34 @@ import { applyThemeChrome } from './lib/themeChrome'
 import { MODULE_ORDER } from './lib/moduleOrder'
 import { createRoute, prefetchOnIdle } from './lib/lazyRoute'
 import { RouteBoundary } from './components/RouteBoundary'
-const WeekView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/WeekView').then((module) => ({ default: module.WeekView })))
-const InboxView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/InboxView').then((module) => ({ default: module.InboxView })))
-const ShowsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/ShowsView').then((module) => ({ default: module.ShowsView })))
-const DedupeView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/DedupeView').then((module) => ({ default: module.DedupeView })))
-const StudyView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/StudyView').then((module) => ({ default: module.StudyView })))
-const QuizView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/QuizView').then((module) => ({ default: module.QuizView })))
-const SparksView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/SparksView').then((module) => ({ default: module.SparksView })))
-const GalleryView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/GalleryView').then((module) => ({ default: module.GalleryView })))
-const NotesView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/NotesView').then((module) => ({ default: module.NotesView })))
-const InsightsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/InsightsView').then((module) => ({ default: module.InsightsView })))
-const CardsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/CardsView').then((module) => ({ default: module.CardsView })))
-const GuideView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/GuideView').then((module) => ({ default: module.GuideView })))
-const AccountView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/AccountView').then((module) => ({ default: module.AccountView })))
-const SettingsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/SettingsView').then((module) => ({ default: module.SettingsView })))
+const WeekView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/WeekView'), 'WeekView')
+const InboxView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/InboxView'), 'InboxView')
+const ShowsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/ShowsView'), 'ShowsView')
+const DedupeView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/DedupeView'), 'DedupeView')
+const StudyView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/StudyView'), 'StudyView')
+const QuizView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/QuizView'), 'QuizView')
+const SparksView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/SparksView'), 'SparksView')
+const GalleryView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/GalleryView'), 'GalleryView')
+const NotesView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/NotesView'), 'NotesView')
+const InsightsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/InsightsView'), 'InsightsView')
+const CardsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/CardsView'), 'CardsView')
+const GuideView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/GuideView'), 'GuideView')
+const AccountView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/AccountView'), 'AccountView')
+const SettingsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/SettingsView'), 'SettingsView')
 const Login = createRoute(() => import('./pages/Login'))
 const NotFound = createRoute(() => import('./pages/NotFound'))
 import type { ViewKey } from './types'
+
+/**
+ * Retry hooks live next to the routes so the boundary never has to know which
+ * component it is showing. A missing entry means "reload instead".
+ */
+const VIEW_RETRIES: Partial<Record<ViewKey, () => boolean>> = {
+  week: WeekView.retry, inbox: InboxView.retry, shows: ShowsView.retry, dedupe: DedupeView.retry,
+  insights: InsightsView.retry, study: StudyView.retry, quiz: QuizView.retry, sparks: SparksView.retry,
+  cards: CardsView.retry, gallery: GalleryView.retry, notes: NotesView.retry, guide: GuideView.retry,
+  account: AccountView.retry, settings: SettingsView.retry,
+}
 
 
 interface NavItem { key: ViewKey; label: string; english: string; icon: typeof CalendarDays }
@@ -164,7 +175,7 @@ function AppShell() {
         {storageError && <div className="storage-error global-storage-error" role="alert">{t(storageError)}</div>}
         {!online && <div className="offline-banner" role="status">{t('You are offline. Existing workspace data remains available; RSS updates require a connection.')}</div>}
         <div className="periodical-bar"><span>{t('PRIVATE LEARNING EDITION')}</span><span>{new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }).format(new Date())}</span></div>
-        <RouteBoundary resetKey={view}>
+        <RouteBoundary resetKey={view} onRetry={() => VIEW_RETRIES[view]?.() ?? false}>
         <Suspense fallback={<RouteFallback />}>
           {view === 'week' && <WeekView onNavigate={navigate} />}
           {view === 'inbox' && <InboxView onNavigate={navigate} />}

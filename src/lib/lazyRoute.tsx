@@ -11,6 +11,16 @@
  *
  * So the module cache lives here. One entry per generation; `retry()` bumps the
  * generation and the next render starts a genuinely new import.
+ *
+ * Two ways out of a failure, in order of cheapness:
+ *   1. Timeout — the import promise is still pending, so re-awaiting the *same*
+ *      promise with a fresh deadline recovers the moment the network does.
+ *   2. Rejection — the URL is pinned in the module map, but the map is keyed by
+ *      the resolved URL, so appending `?route-retry=N` is a different key and a
+ *      real fetch. This is why the card can honestly offer "Try again"; a bare
+ *      re-import would re-throw the cached failure (measured: fetch 200, import
+ *      still rejects).
+ * Anything else (no URL recoverable) falls back to a page reload.
  */
 import { useSyncExternalStore, type ComponentType } from 'react'
 
@@ -90,10 +100,53 @@ export async function loadWithRetry<T>(loader: () => Promise<T>, options: LoadWi
   throw lastError instanceof Error ? lastError : new RouteLoadError(String(lastError))
 }
 
+/** Chrome/Safari name the offending chunk in the error; that URL is our way back in. */
+export function urlFromError(error: unknown): string | undefined {
+  const message = error instanceof Error ? error.message : String(error)
+  const match = message.match(/https?:\/\/[^\s'"]+?\.js(?:\?[^\s'"]*)?/)
+  if (!match) return undefined
+  try {
+    const parsed = new URL(match[0])
+    if (typeof location !== 'undefined' && parsed.origin !== location.origin) return undefined
+    return parsed.href
+  } catch {
+    return undefined
+  }
+}
+
+/** Same chunk, different module-map key. The only way to un-pin a failed import. */
+export function bust(url: string, generation: number): string {
+  const parsed = new URL(url)
+  parsed.searchParams.set('route-retry', String(generation))
+  return parsed.href
+}
+
+/** What an in-place retry can do with a given failure. */
+export type RetryPlan =
+  | { kind: 'reuse' }
+  | { kind: 'bust'; url: string }
+  | { kind: 'reload' }
+
+/**
+ * Decide how to retry without touching React, so the choice is testable.
+ * `reuse` covers a timed-out load (the request is still in flight), `bust`
+ * covers a rejected import (URL is pinned, a new key is not), `reload` is the
+ * honest answer when the error carries no usable URL.
+ */
+export function planRetry(error: unknown, hasPendingImport: boolean, nextGeneration: number): RetryPlan {
+  if (error instanceof RouteLoadError && error.timedOut && hasPendingImport) return { kind: 'reuse' }
+  const failedUrl = urlFromError(error)
+  // Already busted once and it failed again: the pin is on a *dependency* of the
+  // route chunk (busting the entry URL cannot unlock that), so a second in-place
+  // attempt is theatre. Reload gets a fresh module map and actually works.
+  if (failedUrl) return nextGeneration > 1 ? { kind: 'reload' } : { kind: 'bust', url: bust(failedUrl, nextGeneration) }
+  return { kind: 'reload' }
+}
+
 export interface RouteComponent<P> {
   (props: P): React.ReactElement | null
-  /** Drop the cached module so the next render imports it again. */
-  retry: () => void
+  /** Drop the cached module so the next render imports it again. False = reload needed. */
+  retry: () => boolean
 }
 
 interface ModuleEntry<P> {
@@ -110,11 +163,22 @@ interface ModuleEntry<P> {
  * RouteBoundary offer a retry that is not a page reload.
  */
 export function createRoute<P extends object = object>(
-  loader: () => Promise<{ default: ComponentType<P> }>,
+  /**
+   * `() => import('./pages/X')` — untouched, so Vite still sees a static
+   * specifier and emits a real chunk. Named export is picked separately, which
+   * is what lets a retry re-import the *same chunk* under a new URL and still
+   * land on the same component.
+   */
+  loader: () => Promise<Record<string, unknown>>,
+  exportName = 'default',
   options: LoadWithRetryOptions = {},
 ): RouteComponent<P> {
   let generation = 0
   let entry: ModuleEntry<P> | null = null
+  /** Loader to use for the next start, when a retry needs a different URL. */
+  let nextLoader: (() => Promise<Record<string, unknown>>) | null = null
+  /** Last import promise; kept so a timed-out load can be re-awaited, not restarted. */
+  let lastImport: Promise<Record<string, unknown>> | null = null
   const listeners = new Set<() => void>()
   const subscribe = (listener: () => void) => {
     listeners.add(listener)
@@ -122,13 +186,27 @@ export function createRoute<P extends object = object>(
   }
   const snapshot = () => generation
 
+  const pick = (module: Record<string, unknown>) => {
+    const component = module[exportName] as ComponentType<P> | undefined
+    if (!component) throw new RouteLoadError(`route module has no export "${exportName}"`)
+    return component
+  }
+
   function start(): ModuleEntry<P> {
     const current: ModuleEntry<P> = { status: 'pending' }
-    const promise = loadWithRetry(loader, options).then(
+    const load = nextLoader ?? loader
+    nextLoader = null
+    const tracked = () => {
+      const pending = load()
+      lastImport = pending
+      return pending
+    }
+    const promise = loadWithRetry(tracked, options).then(
       (module) => {
+        const mapped = { default: pick(module as Record<string, unknown>) }
         current.status = 'done'
-        current.module = module
-        return module
+        current.module = mapped
+        return mapped
       },
       (error) => {
         current.status = 'error'
@@ -159,10 +237,28 @@ export function createRoute<P extends object = object>(
     return <Component {...props} />
   }
 
-  Route.retry = () => {
+  /**
+   * Retry in the same document: re-await a timed-out load, or import the failed
+   * chunk under a cache-busting query. Returns false when neither is available
+   * and the caller should reload instead of pretending.
+   */
+  Route.retry = (): boolean => {
+    const failure = entry?.status === 'error' ? entry.error : null
+    const plan = planRetry(failure, Boolean(lastImport), generation + 1)
+    console.debug('[route] retry plan', plan.kind, failure && String((failure as Error).message))
+    if (plan.kind === 'reload') return false
+    if (plan.kind === 'reuse') {
+      const stillPending = lastImport as Promise<Record<string, unknown>>
+      nextLoader = () => stillPending
+    } else {
+      const bustedUrl = plan.url
+      nextLoader = () => import(/* @vite-ignore */ bustedUrl) as Promise<Record<string, unknown>>
+    }
+
     generation += 1
     entry = null
     listeners.forEach((listener) => listener())
+    return true
   }
 
   return Route as RouteComponent<P>
