@@ -245,7 +245,6 @@ export function createRoute<P extends object = object>(
   Route.retry = (): boolean => {
     const failure = entry?.status === 'error' ? entry.error : null
     const plan = planRetry(failure, Boolean(lastImport), generation + 1)
-    console.debug('[route] retry plan', plan.kind, failure && String((failure as Error).message))
     if (plan.kind === 'reload') return false
     if (plan.kind === 'reuse') {
       const stillPending = lastImport as Promise<Record<string, unknown>>
