@@ -96,7 +96,12 @@ describe("real performance recording catalogue", () => {
 describe("offline shell privacy", () => {
   it("uses the current cache and never intercepts private API responses or the on-device transcription runtime", () => {
     const worker = readFileSync(path.join(root, "public/sw.js"), "utf8");
-    expect(worker).toContain("const CACHE = 'skopein-shell-v32'");
+    expect(worker).toContain("const CACHE = 'skopein-shell-v33'");
+    // Illustration paths carry no content hash, so they must not be served
+    // cache-first: a returning visitor would keep seeing the artwork from the
+    // build that first cached it.
+    expect(worker).toContain("isIllustration");
+    expect(worker).toContain("^\\/(module-art|module-pigs|artworks|art-guides)\\/");
     expect(worker).toContain("if (url.pathname.startsWith('/api/')) return");
     expect(worker.indexOf("url.pathname.startsWith('/api/')")).toBeLessThan(worker.indexOf("request.mode === 'navigate'"));
     // Whisper model shards + ONNX WASM exceed the iOS Cache API quota; a failed

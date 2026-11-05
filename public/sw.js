@@ -1,4 +1,4 @@
-const CACHE = 'skopein-shell-v32'
+const CACHE = 'skopein-shell-v33'
 const CORE = [
   './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
@@ -164,8 +164,30 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
+  // Illustrations live at stable paths (no content hash), so a cache-first
+  // strategy would keep showing artwork from whichever build first cached it.
+  // V49 shipped five themed art sets; returning visitors were still seeing the
+  // pre-V49 images from cache `skopein-shell-v32`. Media is network-first now,
+  // with the cached copy as the offline fallback.
+  const isIllustration = /^\/(module-art|module-pigs|artworks|art-guides)\//.test(url.pathname)
+
   event.respondWith((async () => {
     const isBundleAsset = url.pathname.startsWith('/assets/') && (url.pathname.endsWith('.css') || url.pathname.endsWith('.js'))
+    if (isIllustration) {
+      const cachedArt = await caches.match(request)
+      try {
+        const fresh = await fetch(request)
+        if (fresh.status === 200) {
+          const cache = await caches.open(CACHE)
+          await safePut(cache, request, fresh.clone())
+          return fresh
+        }
+        return cachedArt || fresh
+      } catch (error) {
+        if (cachedArt) return cachedArt
+        throw error
+      }
+    }
     const cached = await caches.match(request)
     // Bundle URLs are hashed, but a preview proxy or an interrupted earlier
     // load may have left an HTML error document cached under a CSS/JS URL.
