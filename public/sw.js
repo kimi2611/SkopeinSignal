@@ -1,4 +1,4 @@
-const CACHE = 'skopein-shell-v38'
+const CACHE = 'skopein-shell-v39'
 const CORE = [
   './manifest.webmanifest',
   './icons/icon-192-v52.png', './icons/icon-512-v52.png', './icons/icon-512-maskable-v52.png', './icons/apple-touch-icon-v52.png',
