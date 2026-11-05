@@ -1,0 +1,1 @@
+PNG binary transport test: previous test was invalid Base64 text and must be replaced.
