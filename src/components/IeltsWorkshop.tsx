@@ -243,7 +243,7 @@ export function IeltsWorkshop({ kind, onNavigate }: { kind: 'speaking' | 'writin
     AI_MISCONFIGURED: t('AI is not configured for this site yet. Publish (or reopen) the site once, then retry.'),
     AI_TRANSIENT: t('The AI service is busy. Nothing was retried automatically; start the request again when ready.'),
     AI_EMPTY_RESULT: t('The AI returned an incomplete paper. Generate it again before answering.'),
-    UNAUTHORIZED: t('Sign in with your Kimi account to use IELTS practice.'),
+    UNAUTHORIZED: t('Sign in to use IELTS practice.'),
     AI_UNKNOWN: t('The request failed. Nothing was retried automatically; try again when ready.'),
   }
 

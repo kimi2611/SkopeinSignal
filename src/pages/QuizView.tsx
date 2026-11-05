@@ -256,7 +256,7 @@ export function QuizView({ onNavigate }: { onNavigate: (view: ViewKey) => void }
     AI_MISCONFIGURED: t('AI is not configured for this site yet. Publish (or reopen) the site once, then retry.'),
     AI_TRANSIENT: t('The AI service is busy right now. Nothing was retried automatically — start the request again when you are ready.'),
     AI_EMPTY_RESULT: t('The AI returned nothing usable this time. Try generating the questions again.'),
-    UNAUTHORIZED: t('Sign in with your Kimi account to use the voice quiz.'),
+    UNAUTHORIZED: t('Sign in to use the voice quiz.'),
     AI_UNKNOWN: t('The quiz request failed. Nothing was retried automatically — try again when you are ready.'),
   }
 
@@ -279,7 +279,7 @@ export function QuizView({ onNavigate }: { onNavigate: (view: ViewKey) => void }
         <section className="panel quiz-gate">
           <UserRound size={22} />
           <h2>{t('Sign in to use the voice quiz')}</h2>
-          <p>{t('Question generation and grading run on the site’s AI quota. Signing in with your Kimi account keeps that quota under the owner’s control and stores quiz history in your cloud workspace.')}</p>
+          <p>{t('Question generation and grading run on the site’s AI quota. Signing in keeps that quota under the owner’s control and stores quiz history in your cloud workspace.')}</p>
           <button type="button" className="btn btn-primary" onClick={() => onNavigate('account')}>{t('Open My Account')}</button>
         </section>
       )}

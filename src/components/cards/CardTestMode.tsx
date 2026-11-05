@@ -125,7 +125,7 @@ export function CardTestMode({ deck, all }: CardTestModeProps) {
     AI_MISCONFIGURED: t('AI is not configured for this site yet. Publish (or reopen) the site once, then retry.'),
     AI_TRANSIENT: t('The AI service is busy right now. Nothing was retried automatically — the local builder is always available.'),
     AI_EMPTY_RESULT: t('The AI returned nothing usable this time. Try again, or build the test locally.'),
-    UNAUTHORIZED: t('Sign in with your Kimi account to use AI test building.'),
+    UNAUTHORIZED: t('Sign in to use AI test building.'),
     AI_UNKNOWN: t('The request failed. Nothing was retried automatically — the local builder is always available.'),
   }
 
@@ -232,11 +232,11 @@ export function CardTestMode({ deck, all }: CardTestModeProps) {
           <button type="button" className={generator === 'local' ? 'active' : ''} aria-pressed={generator === 'local'} onClick={() => setGenerator('local')}>
             <ClipboardList size={15} /><span><strong>{t('Local builder')}</strong><small>{t('Free, offline — passage blanks from each card’s own context')}</small></span>
           </button>
-          <button type="button" className={generator === 'ai' ? 'active' : ''} aria-pressed={generator === 'ai'} onClick={() => setGenerator('ai')} disabled={authLoading || !isAuthenticated} title={!isAuthenticated ? t('Sign in with your Kimi account to use AI test building.') : undefined}>
+          <button type="button" className={generator === 'ai' ? 'active' : ''} aria-pressed={generator === 'ai'} onClick={() => setGenerator('ai')} disabled={authLoading || !isAuthenticated} title={!isAuthenticated ? t('Sign in to use AI test building.') : undefined}>
             <Sparkles size={15} /><span><strong>{t('AI builder')}</strong><small>{t('AI writes long quoted-passage questions — billed to the site owner')}</small></span>
           </button>
         </div>
-        {!authLoading && !isAuthenticated && <p className="form-hint">{t('The AI builder needs Kimi sign-in; the local builder works without it.')}</p>}
+        {!authLoading && !isAuthenticated && <p className="form-hint">{t('The AI builder needs a signed-in account; the local builder works without one.')}</p>}
         <p className="form-hint">{generator === 'ai' ? t('One AI call per test, never retried automatically. Q&A passages are the main dish — the AI writes a longer quoted-passage question per card, plus distractors only if you enabled choice or true/false. Assembly and grading still happen locally in your browser, and results are not saved.') : t('Built locally from the filtered deck — mostly Q&A: passage-blank questions from each card’s episode context and type-the-word answers, with multiple choice or true/false only if you add them. Graded instantly in your browser. No AI call, no cost, and results are not saved.')}</p>
         <div className="card-test-config">
           <label><span>{t('Questions')}</span><select className="field" value={count} onChange={(event) => setCount(Number(event.target.value))}>{[5, 10, 15, 20].map((value) => <option key={value} value={value}>{value}</option>)}</select></label>

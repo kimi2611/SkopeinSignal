@@ -23,24 +23,24 @@ export function AccountView({ onNavigate }: { onNavigate: (view: ViewKey) => voi
         view="account"
         kicker={t('MY ACCOUNT / PRIVATE CLOUD')}
         title={t(moduleTitle(theme, 'account'))}
-        copy={t('Create or open your private account with Kimi. Your workspace follows your sign-in, while local audio remains on each device.')}
+        copy={t('Sign in with the email and password for this site. Your workspace follows your sign-in, while local audio remains on each device.')}
       />
 
       <section className="account-identity" aria-labelledby="account-identity-title">
         <div className="account-identity-mark"><UserRound size={28} /></div>
         <div className="account-identity-copy">
           <span className="section-index">{isAuthenticated ? t('SIGNED-IN ACCOUNT') : t('ACCOUNT NOT YET CONNECTED')}</span>
-          <h2 id="account-identity-title">{isAuthenticated ? user?.name || user?.email || t('Kimi account') : t('Create my account')}</h2>
+          <h2 id="account-identity-title">{isAuthenticated ? user?.name || user?.email || t('Account') : t('Create my account')}</h2>
           <p>{isAuthenticated
-            ? t('Kimi sign-in · {email}', { email: user?.email || t('Account email unavailable') })
-            : t('Use “Sign in with Kimi” below. A successful first sign-in creates your private SkopeinSignal cloud workspace; there is no separate password to invent or store here.')}</p>
+            ? t('Signed in · {email}', { email: user?.email || t('Account email unavailable') })
+            : t('Use the email and password fields below. A successful first sign-in creates your private SkopeinSignal cloud workspace, and the password can be changed further down this page.')}</p>
           {isAuthenticated && user && <DisplayNameEditor currentName={user.name || ''} onSaved={refresh} />}
         </div>
         <span className={`account-presence ${isAuthenticated ? 'is-online' : ''}`}><Cloud size={16} />{isAuthenticated ? t('Cloud account active') : t('Local workspace active')}</span>
       </section>
 
       <section className="settings-section account-cloud-section" aria-labelledby="account-cloud-title">
-        <div className="settings-heading"><span>01</span><div><h2 id="account-cloud-title">{t('Account & cloud workspace')}</h2><p>{t('The same Kimi authentication and revision-checked cloud workspace used throughout SkopeinSignal—never a second, simulated account.')}</p></div></div>
+        <div className="settings-heading"><span>01</span><div><h2 id="account-cloud-title">{t('Account & cloud workspace')}</h2><p>{t('The same account authentication and revision-checked cloud workspace used throughout SkopeinSignal—never a second, simulated account.')}</p></div></div>
         <CloudSyncPanel />
       </section>
 

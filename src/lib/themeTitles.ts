@@ -89,7 +89,7 @@ const PURE: ThemeTitles = {
   shows: ti('Shows and tiers.'),
   dedupe: ti('Near-duplicate episodes.'),
   guide: ti('How to make this atelier work.'),
-  account: ti('Account and workspace.'),
+  account: ti('Account and work footprint.'),
   settings: ti('Language, appearance, and other settings.'),
 }
 

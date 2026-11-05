@@ -94,7 +94,7 @@ export function UnderstandingStudio({ episode }: { episode: Episode }) {
     AI_MISCONFIGURED: t('AI is not configured for this site yet. Existing notes and summaries still work.'),
     AI_TRANSIENT: t('The AI service is busy. No request was retried automatically; start again when ready.'),
     AI_CONTENT_REJECTED: t('The AI declined this transcript selection. Try another section.'),
-    UNAUTHORIZED: t('Sign in with Kimi to generate understanding records.'),
+    UNAUTHORIZED: t('Sign in to generate understanding records.'),
     AI_UNKNOWN: t('Understanding could not be generated. Nothing was saved and no request was retried automatically.'),
   }
 

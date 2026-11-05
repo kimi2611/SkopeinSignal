@@ -135,7 +135,7 @@ export function SparksView({ onNavigate }: { onNavigate: (view: ViewKey) => void
     AI_MISCONFIGURED: t('AI is not configured for this site yet. Publish (or reopen) the site once, then retry.'),
     AI_TRANSIENT: t('The AI service is busy right now. Nothing was retried automatically — send the spark again when you are ready.'),
     AI_EMPTY_RESULT: t('The AI returned nothing usable this time. Try sending the spark again.'),
-    UNAUTHORIZED: t('Sign in with your Kimi account to share sparks.'),
+    UNAUTHORIZED: t('Sign in to share sparks.'),
     AI_UNKNOWN: t('The request failed. Nothing was retried automatically — try again when you are ready.'),
   }
 
@@ -176,7 +176,7 @@ export function SparksView({ onNavigate }: { onNavigate: (view: ViewKey) => void
         <section className="panel sparks-gate">
           <UserRound size={22} />
           <h2>{t('Sign in to share sparks')}</h2>
-          <p>{t('Spark feedback runs on the site’s AI quota. Signing in with your Kimi account keeps that quota under the owner’s control and stores your sparks in your cloud workspace.')}</p>
+          <p>{t('Spark feedback runs on the site’s AI quota. Signing in keeps that quota under the owner’s control and stores your sparks in your cloud workspace.')}</p>
           <button type="button" className="btn btn-primary" onClick={() => onNavigate('account')}>{t('Open My Account')}</button>
         </section>
       )}

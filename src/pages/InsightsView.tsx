@@ -77,7 +77,7 @@ export function InsightsView() {
     AI_TRANSIENT: t('The AI service is busy. No request was retried automatically, and your existing summary was not replaced.'),
     AI_CONTENT_REJECTED: t('The AI declined this transcript. Your existing summary was not replaced.'),
     AI_EMPTY_RESULT: t('The AI returned an incomplete summary. Nothing was saved, and your existing summary was not replaced.'),
-    UNAUTHORIZED: t('Sign in with Kimi to generate a summary from this transcript.'),
+    UNAUTHORIZED: t('Sign in to generate a summary from this transcript.'),
     AI_UNKNOWN: t('The summary could not be generated. Nothing was saved and no request was retried automatically.'),
   }
 
@@ -279,7 +279,7 @@ export function InsightsView() {
             <button type="button" className="btn btn-primary" disabled={!isAuthenticated || !session?.segments.length || generateSummary.isPending} onClick={() => void generate()}>{generateSummary.isPending ? <><Loader2 size={16} className="spin" />{t('Generating summary…')}</> : <><Sparkles size={16} />{summary ? t('Regenerate with Kimi') : t('Generate with Kimi')}</>}</button>
             <small>{summary ? t('A successful generation replaces the current summary. A failed request leaves it untouched.') : t('No summary exists yet. Generation saves only after the complete result succeeds.')}</small>
             {!session?.segments.length && <p className="learning-empty">{t('Import and save a transcript in Listen & Read before generating. Manual paste and file import remain available below.')}</p>}
-            {!isAuthenticated && <p className="form-hint">{t('Sign in with Kimi to use AI generation. Existing summaries remain readable without signing in.')}</p>}
+            {!isAuthenticated && <p className="form-hint">{t('Sign in to use AI generation. Existing summaries remain readable without signing in.')}</p>}
             {summaryError && <div className="cloud-sync-error" role="alert"><p>{summaryErrorText[summaryError] ?? summaryErrorText.AI_UNKNOWN}</p></div>}
           </section>
 

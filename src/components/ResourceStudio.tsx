@@ -61,7 +61,7 @@ export function ResourceStudio({ initialEpisodeId = '', initialSparkId = '' }: R
     AI_EMPTY_RESULT: t('The AI returned an incomplete comparison. No result was saved; try again when ready.'),
     RESOURCE_SEARCH_UNAVAILABLE: t('Both scholarly databases are unavailable right now. Your idea remains here; try the search again later.'),
     RESOURCE_NO_MATCHES: t('The live scholarly indexes returned no usable records for this query. Broaden the idea or name the mechanism you want to compare.'),
-    UNAUTHORIZED: t('Sign in with your Kimi account to use Resources.'),
+    UNAUTHORIZED: t('Sign in to use Resources.'),
     AI_UNKNOWN: t('The research request failed. Your idea remains here; try again when ready.'),
   }
 

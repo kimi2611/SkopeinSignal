@@ -74,7 +74,7 @@ export function CloudSyncPanel() {
   return <div className="cloud-sync-panel">
     <div className="cloud-sync-summary">
       <div className="cloud-sync-icon">{isAuthenticated ? <Cloud size={24} /> : <CloudOff size={24} />}</div>
-      <div><CloudStatusBadge /><p>{isAuthenticated ? t('Signed in as {name}. Show edits, episodes, transcripts, vocabulary, notes, summaries, understanding records, research reports, idea evolution, card schedules, and playback positions sync to your private account workspace.', { name: user?.name || user?.email || t('Kimi account') }) : t('You can keep working locally. Sign in with Kimi to load and save a private cloud workspace across your devices.')}</p></div>
+      <div><CloudStatusBadge /><p>{isAuthenticated ? t('Signed in as {name}. Show edits, episodes, transcripts, vocabulary, notes, summaries, understanding records, research reports, idea evolution, card schedules, and playback positions sync to your private account workspace.', { name: user?.name || user?.email || t('Account') }) : t('You can keep working locally. Sign in to load and save a private cloud workspace across your devices.')}</p></div>
     </div>
 
     <div className={`cloud-capacity ${payloadPercent >= 90 ? 'is-warning' : ''}`}>
@@ -84,7 +84,7 @@ export function CloudSyncPanel() {
       {deviceStorage && <small>{t('Browser storage used: {used} MB of about {quota} MB available to this site.', { used: (deviceStorage.usage / 1024 / 1024).toFixed(1), quota: (deviceStorage.quota / 1024 / 1024).toFixed(0) })}</small>}
     </div>
 
-    {!isAuthenticated && <div className="backup-actions"><button type="button" className="btn btn-primary" disabled={isLoading} onClick={() => window.location.assign(LOGIN_PATH)}><LogIn size={16} />{t('Sign in with Kimi')}</button></div>}
+    {!isAuthenticated && <div className="backup-actions"><button type="button" className="btn btn-primary" disabled={isLoading} onClick={() => window.location.assign(LOGIN_PATH)}><LogIn size={16} />{t('Sign in')}</button></div>}
 
     {isAuthenticated && <>
       <div className="cloud-sync-meta"><span>{t('Revision {number}', { number: cloud.revision })}</span><span>{cloud.lastSyncedAt ? t('Last cloud save {date}', { date: new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(cloud.lastSyncedAt)) }) : t('No cloud save yet')}</span></div>
@@ -94,6 +94,6 @@ export function CloudSyncPanel() {
       <div className="backup-actions"><button type="button" className="btn btn-secondary" disabled={busy || cloud.status === 'loading' || cloud.status === 'migration' || cloud.status === 'conflict'} onClick={() => void run(cloud.status === 'error' ? cloud.retryCloud : cloud.saveNow, t('Workspace synchronized with your cloud account.'))}><RefreshCw size={16} />{cloud.status === 'error' ? t('Retry cloud sync') : t('Sync now')}</button><button type="button" className="btn btn-ghost" disabled={busy} onClick={() => void logout()}><LogOut size={16} />{t('Sign out')}</button>{cloud.status === 'synced' && <span className="cloud-confirmed"><Check size={15} />{t('Automatic saving is on')}</span>}</div>
     </>}
 
-    <p className="form-hint">{t('Cloud sync covers workspace JSON only. Local audio remains in this browser’s IndexedDB and is never uploaded; keep the original audio files separately. No Snipd, KimiClaw, or LinguaCafe passwords are requested or stored.')}</p>
+    <p className="form-hint">{t('Cloud sync covers workspace JSON only. Local audio remains in this browser’s IndexedDB and never enters the cloud save; keep the original audio files separately. No Snipd, KimiClaw, or LinguaCafe passwords are requested or stored.')}</p>
   </div>
 }

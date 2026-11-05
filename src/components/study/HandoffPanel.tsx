@@ -66,7 +66,7 @@ export function HandoffPanel({ episode, show, session, entries, onOpenTimeline }
   const cloudDescriptions: Record<CloudSyncStatus, string> = {
     disabled: t('This browser only. Text is not synced to another device until you sign in with Kimi.'),
     loading: t('Connecting to the cloud. The browser copy remains available; wait for a sync receipt before switching devices.'),
-    migration: t('Cloud setup needs your choice. Open Settings to upload this browser workspace or start fresh; local audio is never uploaded.'),
+    migration: t('Cloud setup needs your choice. Open Settings to upload this browser workspace or start fresh; local audio never enters the cloud save.'),
     saving: t('Saving the text workspace to the cloud. Keep this browser copy until the synced status appears.'),
     synced: cloud.lastSyncedAt ? t('Cloud sync confirmed the text workspace at {date}. Local audio is still excluded.', { date: new Date(cloud.lastSyncedAt).toLocaleString(locale) }) : t('Cloud sync is active for the text workspace. Local audio is still excluded.'),
     error: t('Cloud sync has not confirmed the latest changes. This browser copy is retained; open Settings to retry.'),

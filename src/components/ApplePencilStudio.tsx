@@ -248,7 +248,7 @@ export function ApplePencilStudio({ variant = 'notes' }: { variant?: 'notes' | '
       AI_TRANSIENT: t('The AI service is busy. Nothing was retried automatically; your drawing remains saved.'),
       AI_EMPTY_RESULT: t('No legible handwriting was returned. Add contrast or write more clearly, then try again.'),
       AI_INVALID_REQUEST: t('The AI request could not be prepared. Your drawing remains saved; please try a smaller page.'),
-      UNAUTHORIZED: t('Sign in with your Kimi account to use handwriting recognition.'),
+      UNAUTHORIZED: t('Sign in to use handwriting recognition.'),
       AI_MISCONFIGURED: t('AI is not configured for this site yet. Publish (or reopen) the site once, then retry.'),
       AI_UNKNOWN: t('The AI request failed. Nothing was retried automatically; your drawing remains saved.'),
     }
