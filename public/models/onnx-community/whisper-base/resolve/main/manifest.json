@@ -1,0 +1,34 @@
+{
+  "model": "onnx-community/whisper-base",
+  "files": [
+    {
+      "path": "config.json",
+      "size": 2243
+    },
+    {
+      "path": "generation_config.json",
+      "size": 3832
+    },
+    {
+      "path": "preprocessor_config.json",
+      "size": 339
+    },
+    {
+      "path": "tokenizer.json",
+      "size": 2480466
+    },
+    {
+      "path": "tokenizer_config.json",
+      "size": 282682
+    },
+    {
+      "path": "onnx/encoder_model_quantized.onnx",
+      "size": 23201314
+    },
+    {
+      "path": "onnx/decoder_model_merged_quantized.onnx",
+      "size": 53693315
+    }
+  ],
+  "totalBytes": 79664191
+}
