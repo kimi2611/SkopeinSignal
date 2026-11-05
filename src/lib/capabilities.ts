@@ -49,7 +49,7 @@ export function detectCapabilities(): Capability[] {
       // Threaded WASM needs COOP/COEP. The transcriber is built to run with one
       // thread regardless, so this row explains why it is slower, not why it fails.
       available: Boolean(w?.crossOriginIsolated),
-      degraded: false,
+      degraded: true,
     },
     {
       id: 'clipboard',

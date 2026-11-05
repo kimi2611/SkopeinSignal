@@ -58,8 +58,17 @@ export function isStandalone(): boolean {
 }
 
 function compute(): Snapshot {
-  const state: InstallState = installed || isStandalone() ? 'installed' : deferredPrompt ? 'installable' : 'unavailable'
-  const next: Snapshot = { state, platform: detectPlatform(), browser: detectBrowser() }
+  const platform = detectPlatform()
+  const browser = detectBrowser()
+  // An install event never exists in Firefox, but a UA-spoofing build or an
+  // embedded Chromium could still deliver one — trust the browser's identity
+  // over an event it cannot honour, so the panel never shows a dead button.
+  const state: InstallState = installed || isStandalone()
+    ? 'installed'
+    : deferredPrompt && browser !== 'firefox'
+      ? 'installable'
+      : 'unavailable'
+  const next: Snapshot = { state, platform, browser }
   const previous = snapshot
   if (!previous || previous.state !== next.state || previous.platform !== next.platform || previous.browser !== next.browser) {
     snapshot = next
