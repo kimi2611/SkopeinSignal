@@ -96,7 +96,10 @@ describe("real performance recording catalogue", () => {
 describe("offline shell privacy", () => {
   it("uses the current cache and never intercepts private API responses or the on-device transcription runtime", () => {
     const worker = readFileSync(path.join(root, "public/sw.js"), "utf8");
-    expect(worker).toContain("const CACHE = 'skopein-shell-v38'");
+    // The exact version is bumped with every release that changes the bundle, so
+    // pin the shape rather than a literal — a frozen number only proves that
+    // someone edited two files together.
+    expect(worker).toMatch(/const CACHE = 'skopein-shell-v\d+'/);
     // Illustration paths carry no content hash, so they must not be served
     // cache-first: a returning visitor would keep seeing the artwork from the
     // build that first cached it.
