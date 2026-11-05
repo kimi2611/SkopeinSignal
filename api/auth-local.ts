@@ -6,8 +6,9 @@ import { env } from "./lib/env";
 import { getSessionCookieOptions } from "./lib/cookies";
 import { Session } from "@contracts/constants";
 import { signSessionToken } from "./kimi/session";
-import { findUserByUnionId, updateUserName, upsertUser } from "./queries/users";
+import { findUserByUnionId, updateUserName, updateUserPassword, upsertUser } from "./queries/users";
 import { verifySessionToken } from "./kimi/session";
+import { sessionVersionFor, validateNewPassword } from "./lib/password";
 import { log } from "./lib/logger";
 
 // 本地账号密码登录（自托管改造，A 案）。
@@ -81,7 +82,11 @@ localAuthRoutes.post("/register", async (c) => {
   });
   const user = await findUserByUnionId(unionId);
 
-  const token = await signSessionToken({ unionId, clientId: env.appId || "skopein-local" });
+  const token = await signSessionToken({
+    unionId,
+    clientId: env.appId || "skopein-local",
+    sv: sessionVersionFor(user?.passwordHash) ?? undefined,
+  });
   const opts = getSessionCookieOptions(c.req.raw.headers);
   setCookie(c, Session.cookieName, token, { ...opts, maxAge: Session.maxAgeMs / 1000 });
   log.info("local auth: registered", { email });
@@ -104,7 +109,11 @@ localAuthRoutes.post("/login", async (c) => {
   }
 
   await upsertUser({ unionId: user.unionId, lastSignInAt: new Date() });
-  const token = await signSessionToken({ unionId: user.unionId, clientId: env.appId || "skopein-local" });
+  const token = await signSessionToken({
+    unionId: user.unionId,
+    clientId: env.appId || "skopein-local",
+    sv: sessionVersionFor(user.passwordHash) ?? undefined,
+  });
   const opts = getSessionCookieOptions(c.req.raw.headers);
   setCookie(c, Session.cookieName, token, { ...opts, maxAge: Session.maxAgeMs / 1000 });
   log.info("local auth: login", { email });
@@ -142,6 +151,9 @@ localAuthRoutes.patch("/profile", async (c) => {
 
   const user = await findUserByUnionId(session.unionId);
   if (!user) return c.json({ error: "Account not found." }, 404);
+  if (session.sv && user.passwordHash && session.sv !== sessionVersionFor(user.passwordHash)) {
+    return c.json({ error: "Session expired. Please sign in again.", code: "not_signed_in" }, 401);
+  }
 
   await updateUserName(user.unionId, checked.name);
   const updated = await findUserByUnionId(user.unionId);
@@ -150,4 +162,63 @@ localAuthRoutes.patch("/profile", async (c) => {
     ok: true,
     user: { id: updated?.id, email: updated?.email, name: updated?.name, role: updated?.role },
   });
+});
+
+// 修改密码：旧密码验证 → 规则校验 → 换 hash → 清当前 cookie。
+// 换 hash 后所有旧 session 的 sv 失配（2026-11-05 起签发的 token 都带 sv），
+// 因此"全部设备退出登录"不需要会话表。
+localAuthRoutes.post("/password", async (c) => {
+  if (rateLimited(clientIp(c))) {
+    return c.json({ error: "Too many attempts. Try again later.", code: "rate_limited" }, 429);
+  }
+  const token = cookie.parse(c.req.raw.headers.get("cookie") ?? "")[Session.cookieName];
+  const session = token ? await verifySessionToken(token) : null;
+  if (!session) return c.json({ error: "Not signed in.", code: "not_signed_in" }, 401);
+
+  const body = await c.req.json().catch(() => null);
+  const currentPassword = String(body?.currentPassword ?? "");
+  const newPassword = String(body?.newPassword ?? "");
+
+  const user = await findUserByUnionId(session.unionId);
+  if (!user) return c.json({ error: "Account not found.", code: "not_signed_in" }, 404);
+  if (session.sv && user.passwordHash && session.sv !== sessionVersionFor(user.passwordHash)) {
+    return c.json({ error: "Session expired. Please sign in again.", code: "not_signed_in" }, 401);
+  }
+  if (!user.passwordHash) {
+    return c.json({ error: "This account has no local password.", code: "no_password" }, 400);
+  }
+
+  const matches = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!matches) {
+    return c.json({ error: "Current password is incorrect.", code: "wrong_current" }, 401);
+  }
+
+  const checked = validateNewPassword(currentPassword, newPassword);
+  if (!checked.ok) {
+    const messages: Record<string, string> = {
+      missing_current: "Current password is required.",
+      too_short: "New password must be at least 8 characters.",
+      too_long: "New password must be 200 characters or fewer.",
+      same_as_current: "New password must differ from the current one.",
+      no_password: "This account has no local password.",
+    };
+    return c.json({ error: messages[checked.code] ?? "Invalid new password.", code: checked.code }, 400);
+  }
+
+  await updateUserPassword(user.unionId, await bcrypt.hash(newPassword, 10));
+  log.info("local auth: password changed", { email: user.email });
+
+  // 当前这台设备也退出：cookie 立刻清掉，前端跳登录页。
+  const opts = getSessionCookieOptions(c.req.raw.headers);
+  c.header(
+    "set-cookie",
+    cookie.serialize(Session.cookieName, "", {
+      httpOnly: opts.httpOnly,
+      path: opts.path,
+      sameSite: opts.sameSite?.toLowerCase() as "lax" | "none",
+      secure: opts.secure,
+      maxAge: 0,
+    }),
+  );
+  return c.json({ ok: true });
 });

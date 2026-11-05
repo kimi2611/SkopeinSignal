@@ -7,6 +7,7 @@ import { getSessionCookieOptions } from "../lib/cookies";
 import { Session } from "@contracts/constants";
 import { Errors } from "@contracts/errors";
 import { signSessionToken, verifySessionToken } from "./session";
+import { sessionVersionFor } from "../lib/password";
 import { users as kimiUsers } from "./platform";
 import { findUserByUnionId, upsertUser } from "../queries/users";
 import type { TokenResponse } from "./types";
@@ -80,6 +81,14 @@ export async function authenticateRequest(headers: Headers) {
   const user = await findUserByUnionId(claim.unionId);
   if (!user) {
     throw Errors.forbidden("User not found. Please re-login.");
+  }
+  // 密码一改，旧 token 的 sv 就对不上当前 hash：全部设备统一失效。
+  // 早于 2026-11-05 签发、没有 sv 的旧 token 仍被接受（一年内自然过期）。
+  if (claim.sv && user.passwordHash) {
+    const expected = sessionVersionFor(user.passwordHash);
+    if (expected && claim.sv !== expected) {
+      throw Errors.forbidden("Session expired. Please sign in again.");
+    }
   }
   return user;
 }

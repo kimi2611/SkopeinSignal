@@ -42,3 +42,11 @@ export async function updateUserName(unionId: string, name: string) {
     .set({ name })
     .where(eq(schema.users.unionId, unionId));
 }
+
+// 密码独立更新：只换 hash，不碰 lastSignInAt。旧 session 因 sv 失配自然失效。
+export async function updateUserPassword(unionId: string, passwordHash: string) {
+  await getDb()
+    .update(schema.users)
+    .set({ passwordHash })
+    .where(eq(schema.users.unionId, unionId));
+}

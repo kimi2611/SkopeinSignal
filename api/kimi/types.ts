@@ -9,6 +9,8 @@ export type TokenResponse = {
 export type SessionPayload = {
   unionId: string;
   clientId: string;
+  /** Password-derived session version; absent on tokens issued before 2026-11-05. */
+  sv?: string;
 };
 
 export type UserProfile = {

@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { CloudSyncPanel } from '../components/CloudSync'
 import { PageHeader } from '../components/Common'
 import { LearningFootprint } from '../components/LearningLoopNav'
+import { PasswordSection } from '../components/PasswordSection'
 import { useAuth } from '../hooks/useAuth'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { moduleTitle } from '../lib/themeTitles'
@@ -46,6 +47,11 @@ export function AccountView({ onNavigate }: { onNavigate: (view: ViewKey) => voi
       <section className="settings-section account-loop-section" aria-labelledby="account-loop-title">
         <div className="settings-heading"><span>02</span><div><h2 id="account-loop-title">{t('Learning footprint')}</h2><p>{t('FOUR MODULES · LATEST FIRST')}</p></div></div>
         <LearningFootprint view="account" onNavigate={onNavigate} />
+      </section>
+
+      <section className="settings-section account-password-section" aria-labelledby="account-password-title">
+        <div className="settings-heading"><span>03</span><div><h2 id="account-password-title">{t('Change password')}</h2><p>{t('Verify the current one, choose a new one, and every signed-in device is dropped back to the sign-in screen.')}</p></div></div>
+        <PasswordSection />
       </section>
 
       <div className="account-boundaries">
