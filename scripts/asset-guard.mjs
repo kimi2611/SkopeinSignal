@@ -99,7 +99,7 @@ for (const f of ['src/lib/translations/zh-CN.ts', 'src/lib/translations/de.ts'])
 requireFile('src/lib/translations/research.ts', 20000, 'i18n:src/lib/translations/research.ts')
 
 // 5. Icons referenced by the service worker CORE list
-for (const f of ['icons/icon-192-v50.png', 'icons/icon-512-v50.png', 'icons/icon-512-maskable-v50.png', 'icons/apple-touch-icon-v50.png']) requireFile(`public/${f}`, 1000, `icon:${f}`)
+for (const f of ['icons/icon-192-v51.png', 'icons/icon-512-v51.png', 'icons/icon-512-maskable-v51.png', 'icons/apple-touch-icon-v51.png']) requireFile(`public/${f}`, 1000, `icon:${f}`)
 
 if (failures.length) {
   console.error(`asset-guard: ${failures.length} problem(s) found:`)

@@ -1,66 +1,86 @@
 #!/usr/bin/env python3
-"""Generate the V50 app icon set.
+"""Generate the V51 home-screen icon set: a flat pig mark.
 
-The pre-V49 icons were cream-on-white, which read as a blank tile on a home
-screen. V50 gives the mark the forest-dusk ground from the current art theme so
-it stays legible at 60px: a cream "signal" glyph (filled dot + two broadcast
-arcs) resting on an amber shelf line.
+Why not reuse the painted mascot art: the pig heads inside public/module-pigs/*
+are only ~160px wide on a 1500px canvas, so cropping one and blowing it up to
+512px turns to mush at the 60px the home screen actually shows. The icon is
+therefore a simplified flat mark of the same pig — same animal, same warm pink,
+redrawn as one silhouette so it survives the size reduction (reference: the
+Freddie and Duolingo-owl school of mascot icons).
 
-Run with: python3 scripts/make-icons.py
+Run: python3 scripts/make-icons.py
 """
 from PIL import Image, ImageDraw
 import pathlib
 
-OUT = pathlib.Path(__file__).resolve().parent.parent / "public" / "icons"
-GROUND = (23, 50, 47, 255)      # forest-dusk deep teal
-CREAM = (246, 239, 226, 255)    # paper
-AMBER = (232, 176, 75, 255)     # lantern
-SS = 4                          # supersample factor
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+OUT = ROOT / "public" / "icons"
+
+TEAL = (23, 50, 47, 255)      # forest-dusk ground, same family as the theme
+PINK = (232, 168, 160, 255)   # mascot skin
+PINK_D = (208, 138, 132, 255) # snout
+SS = 4                        # supersample factor
 
 
 def draw_mark(size: int, pad: float, rounded: bool) -> Image.Image:
-    """pad: fraction of the canvas kept clear on each side (maskable needs more)."""
     s = size * SS
     img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
+
     if rounded:
-        d.rounded_rectangle([0, 0, s - 1, s - 1], radius=int(s * 0.22), fill=GROUND)
+        d.rounded_rectangle([0, 0, s - 1, s - 1], radius=int(s * 0.225), fill=TEAL)
     else:
-        d.rectangle([0, 0, s, s], fill=GROUND)
+        d.rectangle([0, 0, s - 1, s - 1], fill=TEAL)
 
+    cx = s / 2
     inner = s * (1 - 2 * pad)
-    ox = oy = s * pad
-    cx = ox + inner * 0.42
-    cy = oy + inner * 0.46
-    unit = inner
+    u = inner / 100.0            # 1 unit = 1% of the usable box
+    cy = s / 2 + u * 2
 
-    # broadcast arcs (drawn first so the dot sits on top)
-    for radius, width in ((0.31, 0.085), (0.46, 0.085)):
-        r = unit * radius
-        w = int(unit * width)
-        d.arc([cx - r, cy - r, cx + r, cy + r], start=-47, end=47, fill=CREAM, width=w)
+    head_r = u * 36
+    # ears first so the head overlaps their base
+    ear_w, ear_h = u * 20, u * 17
+    for sign in (-1, 1):
+        ex = cx + sign * head_r * 0.62
+        ey = cy - head_r * 0.72
+        d.polygon(
+            [
+                (ex - ear_w / 2 * sign, ey + ear_h * 0.55),
+                (ex + ear_w / 2 * 1.05 * sign, ey + ear_h * 0.30),
+                (ex + ear_w * 0.10 * sign, ey - ear_h * 0.75),
+            ],
+            fill=PINK,
+        )
 
-    # the dot: a played episode / a lit window
-    r = unit * 0.15
-    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=CREAM)
+    d.ellipse([cx - head_r, cy - head_r, cx + head_r, cy + head_r], fill=PINK)
 
-    # shelf line: the atelier's lectern
-    lw = int(unit * 0.055)
-    x0 = ox + inner * 0.22
-    x1 = ox + inner * 0.88
-    y = oy + inner * 0.76
-    d.rounded_rectangle([x0, y - lw / 2, x1, y + lw / 2], radius=lw // 2, fill=AMBER)
+    # eyes
+    eye_r = u * 3.6
+    for sign in (-1, 1):
+        ex = cx + sign * u * 13.5
+        ey = cy - u * 7
+        d.ellipse([ex - eye_r, ey - eye_r, ex + eye_r, ey + eye_r], fill=TEAL)
+
+    # snout
+    sw, sh = u * 30, u * 20
+    sy = cy + u * 11
+    d.rounded_rectangle([cx - sw / 2, sy - sh / 2, cx + sw / 2, sy + sh / 2], radius=min(sw, sh) / 2.2, fill=PINK_D)
+    nx = u * 6.2
+    nr = u * 2.6
+    for sign in (-1, 1):
+        d.ellipse([cx + sign * nx - nr, sy - nr, cx + sign * nx + nr, sy + nr], fill=TEAL)
 
     return img.resize((size, size), Image.LANCZOS)
 
 
 def main() -> None:
     spec = [
-        ("icon-512-v50.png", 512, 0.14, True),
-        ("icon-512-maskable-v50.png", 512, 0.24, False),
-        ("icon-192-v50.png", 192, 0.14, True),
-        ("apple-touch-icon-v50.png", 180, 0.10, False),
+        ("icon-512-v51.png", 512, 0.13, True),
+        ("icon-512-maskable-v51.png", 512, 0.22, False),
+        ("icon-192-v51.png", 192, 0.13, True),
+        ("apple-touch-icon-v51.png", 180, 0.09, False),
     ]
+    OUT.mkdir(parents=True, exist_ok=True)
     for name, size, pad, rounded in spec:
         draw_mark(size, pad, rounded).save(OUT / name, optimize=True)
         print("wrote", name, size)

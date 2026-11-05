@@ -1,7 +1,7 @@
-const CACHE = 'skopein-shell-v34'
+const CACHE = 'skopein-shell-v35'
 const CORE = [
   './manifest.webmanifest',
-  './icons/icon-192-v50.png', './icons/icon-512-v50.png', './icons/icon-512-maskable-v50.png', './icons/apple-touch-icon-v50.png',
+  './icons/icon-192-v51.png', './icons/icon-512-v51.png', './icons/icon-512-maskable-v51.png', './icons/apple-touch-icon-v51.png',
   './module-pigs/week.webp', './module-pigs/inbox.webp', './module-pigs/shows.webp',
   './module-pigs/dedupe.webp', './module-pigs/insights.webp', './module-pigs/study.webp',
   './module-pigs/cards.webp', './module-pigs/gallery.webp', './module-pigs/notes.webp',
