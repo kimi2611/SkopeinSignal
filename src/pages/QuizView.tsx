@@ -309,6 +309,9 @@ export function QuizView({ onNavigate }: { onNavigate: (view: ViewKey) => void }
               {excludedCount > 0 && (
                 <p className="quiz-language-note" data-testid="quiz-language-note">{t('{count} transcript(s) in other languages are not listed — the voice quiz runs in English and German only.', { count: excludedCount })}</p>
               )}
+              {!speechSupported && (
+                <p className="quiz-language-note quiz-voice-warning" data-testid="quiz-voice-warning">{t('Heads-up before you start: this quiz is answered out loud, and this browser has no speech recognition — Firefox desktop is the usual case. Open the site in Chrome, Edge, or Safari to take it, or use Word Decks meanwhile.')}</p>
+              )}
               <ul className="quiz-episode-list">
                 {eligible.map(({ session, episode }) => {
                   const show = showById.get(episode.showId)

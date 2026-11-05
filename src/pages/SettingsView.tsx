@@ -3,6 +3,7 @@ import { BookOpen, CheckCircle2, Cloud, Database, Download, HardDrive, Mic, Rota
 import { toast } from 'sonner'
 import { FeedProgress, PageHeader, RefreshButton } from '../components/Common'
 import { CloudSyncPanel } from '../components/CloudSync'
+import { InstallPanel } from '../components/InstallPanel'
 import { ByokPanel } from '../components/ByokPanel'
 import TranscriptionPanel from '../components/TranscriptionPanel'
 import { REPLAY_ENTRANCE_EVENT } from '../components/EntranceOverlay'
@@ -144,8 +145,8 @@ export function SettingsView() {
         </details>
 
         <section className="settings-section">
-          <div className="settings-heading"><span>05</span><div><h2>{t('Extras')}</h2><p>{t('Install the atelier on an iPad Home Screen, or replay the quiet curtain opening.')}</p></div></div>
-          <ol className="install-steps"><li>{t('Open this preview or your published address in Safari.')}</li><li>{t('Tap Safari’s Share button.')}</li><li>{t('Choose Add to Home Screen and name it SkopeinSignal.')}</li><li>{t('Open from the Home Screen for a standalone-window experience.')}</li></ol>
+          <div className="settings-heading"><span>05</span><div><h2>{t('Install on Windows, macOS & Linux')}</h2><p>{t('Install the atelier as its own window, and see which desktop capabilities this browser actually has before you rely on them.')}</p></div></div>
+          <InstallPanel />
           <div className="local-warning"><ShieldCheck size={20} /><p><strong>{t('Boundaries with Snipd, KimiClaw, and LinguaCafe')}</strong><br />{t('Import transcripts you exported yourself and keep using Snipd; no private passwords are stored. The listening desk creates handoff files, but never reports a local download as a confirmed KimiClaw write or LinguaCafe import.')}</p></div>
           <button type="button" className="btn btn-secondary" onClick={() => window.dispatchEvent(new Event(REPLAY_ENTRANCE_EVENT))}><RotateCcw size={16} />{t('Replay entrance')}</button>
           <p className="form-hint">{t('The entrance never starts audio, and reduced-motion preferences are respected.')}</p>

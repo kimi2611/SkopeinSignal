@@ -2,6 +2,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
 import './index.css'
+// Imported for its side effect: beforeinstallprompt fires once and early, so the
+// listener has to exist before React mounts (see src/lib/pwa.ts).
+import './lib/pwa'
 import App from './App.tsx'
 import { TRPCProvider } from './providers/trpc'
 
