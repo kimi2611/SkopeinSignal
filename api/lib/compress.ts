@@ -90,7 +90,6 @@ export function installCompression(app: App) {
 
     const encoding = pickEncoding(c.req.header("accept-encoding"));
     if (!encoding) return;
-
     let body: Buffer;
     try {
       body = Buffer.from(await res.arrayBuffer());
@@ -122,6 +121,12 @@ export function installCompression(app: App) {
     // a header copy reappears. The compression headers therefore have to be
     // applied to c.res AFTER assignment.
     c.res = new Response(compressed, { status: res.status, statusText: res.statusText });
+    // Hono's setter copies every header EXCEPT content-type, and a Response built
+    // from bytes without one comes back as text/plain. A module script served as
+    // text/plain is refused by the browser (`Expected a JavaScript module script`)
+    // and the whole SPA dies — every route stuck on its loading state, no error
+    // the user can see. It has to be restored explicitly.
+    if (type) c.res.headers.set("Content-Type", type);
     c.res.headers.set("Content-Encoding", encoding);
     // The original byte count is now a lie about the wire format and browsers
     // report the mismatch as ERR_CONTENT_LENGTH_MISMATCH. Drop it and let the
