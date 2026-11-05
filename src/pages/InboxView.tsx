@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Search, Settings2 } from 'lucide-react'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { getEpisodeDurationCategory, TIER_SHORT } from '../lib/format'
+import { moduleTitle } from '../lib/themeTitles'
 import { useI18n } from '../lib/i18n'
 import { getEpisodeLens, LENS_NAMES } from '../lib/lenses'
 import { AddManualButton, FeedProgress, PageHeader, RefreshButton } from '../components/Common'
@@ -10,6 +11,7 @@ import type { EpisodeDurationCategory, EpisodeLens, Tier, ViewKey } from '../typ
 
 export function InboxView({ onNavigate }: { onNavigate: (view: ViewKey) => void }) {
   const { state } = useWorkspace()
+  const theme = state.settings.theme
   const { t } = useI18n()
   const [query, setQuery] = useState('')
   const [showId, setShowId] = useState('all')
@@ -33,7 +35,7 @@ export function InboxView({ onNavigate }: { onNavigate: (view: ViewKey) => void 
 
   return (
     <div className="page-wrap">
-      <PageHeader view="inbox" kicker={t('INBOX / TRIAGE')} title={t('Triage first. Commit time second.')} copy={t('RSS and manual entry only bring candidates here. Compare guests, subjects, and information gain before admitting anything to the weekly queue.')} actions={<><AddManualButton /><RefreshButton /></>} />
+      <PageHeader view="inbox" kicker={t('INBOX / TRIAGE')} title={t(moduleTitle(theme, 'inbox'))} copy={t('RSS and manual entry only bring candidates here. Compare guests, subjects, and information gain before admitting anything to the weekly queue.')} actions={<><AddManualButton /><RefreshButton /></>} />
       <FeedProgress />
       <div className="filter-bar">
         <label className="search-field"><Search size={17} /><span className="sr-only">{t('Search inbox episodes')}</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('Search titles, guests, or shows…')} /></label>

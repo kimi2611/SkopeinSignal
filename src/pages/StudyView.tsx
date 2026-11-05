@@ -13,6 +13,7 @@ import { EpisodeDossier } from '../components/learning/EpisodeDossier'
 import { WorkflowJourney } from '../components/learning/WorkflowJourney'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { consumeStudySetup, consumeStudyTab, readStudyEpisode, readStudySeek, STUDY_EPISODE_KEY } from '../lib/studyNavigation'
+import { moduleTitle } from '../lib/themeTitles'
 import { useI18n } from '../lib/i18n'
 import type { StudySession } from '../types'
 
@@ -20,6 +21,7 @@ type StudyTab = 'transcript' | 'notes' | 'vocabulary' | 'handoff'
 
 export function StudyView() {
   const { state, saveStudySession, saveVocabularyEntry } = useWorkspace()
+  const theme = state.settings.theme
   const { t } = useI18n()
   const [episodeId, setEpisodeId] = useState(() => {
     const stored = readStudyEpisode()
@@ -101,7 +103,7 @@ export function StudyView() {
       <PageHeader
         view="study"
         kicker={t('LISTEN / READ / RETAIN')}
-        title={t('Hear the argument. Keep the language.')}
+        title={t(moduleTitle(theme, 'study'))}
         copy={t('Align audio with a transcript, look up words in context, and capture timestamped notes without pausing. Private Snipd account data is never read.')}
         actions={episode && <label className="study-episode-picker"><span className="sr-only">{t('Choose an episode to study')}</span><select className="field" value={activeEpisodeId} onChange={(event) => selectEpisode(event.target.value)}>{state.episodes.map((item) => {
           const itemShow = state.shows.find((candidate) => candidate.id === item.showId)

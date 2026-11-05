@@ -9,14 +9,16 @@ import { REPLAY_ENTRANCE_EVENT } from '../components/EntranceOverlay'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { useAuth } from '../hooks/useAuth'
 import { formatDate } from '../lib/format'
-import { useI18n } from '../lib/i18n'
+import { useI18n, ti } from '../lib/i18n'
 import { publicHttpUrlError } from '../lib/publicUrl'
 import { navigateToHash } from '../lib/studyNavigation'
-import type { FeedState, UiLocale } from '../types'
+import { moduleTitle } from '../lib/themeTitles'
+import type { AtelierTheme, FeedState, UiLocale } from '../types'
 
 export function SettingsView() {
   const { state, updateSettings, importWorkspace, resetWorkspace, refreshFeeds, refreshProgress } = useWorkspace()
   const { t } = useI18n()
+  const theme = state.settings.theme
   const [proxy, setProxy] = useState(state.settings.proxyUrl)
   const [proxyError, setProxyError] = useState('')
   const [backupReceipt, setBackupReceipt] = useState('')
@@ -93,13 +95,20 @@ export function SettingsView() {
 
   return (
     <div className="page-wrap settings-page">
-      <PageHeader view="settings" kicker={t('SETTINGS / CLOUD & LOCAL')} title={t('Your rules. Your data.')} copy={t('Sign in to sync your private workspace across devices. No private Snipd data is accessed, and local audio always remains on this device.')} actions={<button type="button" className="btn btn-primary" onClick={exportBackup}><Download size={16} />{t('Export JSON (no audio)')}</button>} />
+      <PageHeader view="settings" kicker={t('SETTINGS / CLOUD & LOCAL')} title={t(moduleTitle(theme, 'settings'))} copy={t('Sign in to sync your private workspace across devices. No private Snipd data is accessed, and local audio always remains on this device.')} actions={<button type="button" className="btn btn-primary" onClick={exportBackup}><Download size={16} />{t('Export JSON (no audio)')}</button>} />
       <div className="settings-grid">
         <section className="settings-section">
           <div className="settings-heading"><span>00</span><div><h2>{t('Interface language')}</h2><p>{t('Choose the language of controls, guidance, dialogs, and notifications.')}</p></div></div>
           <label className="field-label" htmlFor="ui-language">{t('Website language')}</label>
           <select id="ui-language" className="field" value={state.settings.uiLocale} onChange={(event) => updateSettings({ uiLocale: event.target.value as UiLocale })}><option value="en">English</option><option value="zh-CN">中文</option><option value="de">Deutsch</option></select>
           <p className="form-hint">{t('English remains the default. This setting does not translate podcast titles, transcripts, notes, or the language of the show itself.')}</p>
+          <fieldset className="theme-picker"><legend>{t('Visual theme')}</legend><div className="theme-options">{([
+            { id: 'toot-puddle', mood: ti('Warm'), title: ti('Warm'), detail: ti('Picture-book warmth with all original Toot & Puddle illustrations by Holly Hobbie.') },
+            { id: 'mist-dawn', mood: ti('Contemplative'), title: ti('Contemplative'), detail: ti('Quiet dawn colors with fourteen complete Caspar David Friedrich module vignettes.') },
+            { id: 'forest-dusk', mood: ti('Mysterious'), title: ti('Mysterious'), detail: ti('Deep forest colors with fourteen complete John Bauer module vignettes.') },
+            { id: 'whimsical', mood: ti('Whimsical'), title: ti('Whimsical'), detail: ti('Cream-paper cheer with fourteen complete Edward Lear nonsense vignettes.') },
+            { id: 'pure', mood: ti('Pure'), title: ti('Pure'), detail: ti('No module, performance, or artwork-guide illustrations; recordings and artworks remain.') },
+          ] as Array<{ id: AtelierTheme; mood: string; title: string; detail: string }>).map((theme) => <button type="button" key={theme.id} className={`theme-option theme-option--${theme.id}${state.settings.theme === theme.id ? ' is-selected' : ''}`} aria-pressed={state.settings.theme === theme.id} onClick={() => updateSettings({ theme: theme.id })}><span className="theme-swatch" aria-hidden="true" /><span><small>{t(theme.mood)}</small><strong>{t(theme.title)}</strong><em>{t(theme.detail)}</em></span></button>)}</div><p className="form-hint">{t('Forest Dusk and Mist Dawn add no illustrations to performances or artwork guides. Pure keeps every recording and artwork while hiding their accompanying illustrations. Your choice is saved with the workspace.')}</p></fieldset>
         </section>
 
         <section className="settings-section">

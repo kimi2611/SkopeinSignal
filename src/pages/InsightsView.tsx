@@ -15,6 +15,7 @@ import { UnderstandingStudio } from '../components/learning/UnderstandingStudio'
 import { WorkflowJourney } from '../components/learning/WorkflowJourney'
 import { buildSummaryNote, buildWritingDraft, summaryToMarkdown, summaryToText } from '../lib/summaryOutput'
 import { safeFilename, downloadText } from '../lib/handoff'
+import { moduleTitle } from '../lib/themeTitles'
 import { useI18n } from '../lib/i18n'
 import type { EpisodeValueCategory } from '../types'
 
@@ -45,6 +46,7 @@ function summaryErrorCode(error: unknown): string {
 
 export function InsightsView() {
   const { state, updateEpisode, saveKimiSummary, removeKimiSummary, saveListeningNote, importVocabulary } = useWorkspace()
+  const theme = state.settings.theme
   const { t, locale } = useI18n()
   const { isAuthenticated } = useAuth()
   const generateSummary = trpc.understanding.summarize.useMutation()
@@ -92,7 +94,7 @@ export function InsightsView() {
     return () => window.removeEventListener('tingwen:select-insights-episode', listener)
   }, [state.episodes])
 
-  if (!selected) return <div className="page-wrap"><PageHeader view="insights" kicker={t('RESEARCH VALUE')} title={t('Timely now. Useful later.')} copy={t('Add an episode before classifying its research value.')} /></div>
+  if (!selected) return <div className="page-wrap"><PageHeader view="insights" kicker={t('RESEARCH VALUE')} title={t(moduleTitle(theme, 'insights'))} copy={t('Add an episode before classifying its research value.')} /></div>
 
   const generate = async () => {
     if (!session?.segments.length || generateSummary.isPending) return
@@ -227,7 +229,7 @@ export function InsightsView() {
       <PageHeader
         view="insights"
         kicker={t('RESEARCH VALUE / KIMI NOTES')}
-        title={t('Timely now. Useful later.')}
+        title={t(moduleTitle(theme, 'insights'))}
         copy={t('Separate urgent listening from durable reference, generate source-linked understanding, or create a four-part Kimi summary from the saved transcript. You can still paste or import a summary yourself; this workspace never reads private Kimi conversations.')}
       />
       <WorkflowJourney episodeId={selected.id} current="summary" />

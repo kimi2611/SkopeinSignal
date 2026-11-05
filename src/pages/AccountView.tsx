@@ -4,10 +4,14 @@ import { toast } from 'sonner'
 import { CloudSyncPanel } from '../components/CloudSync'
 import { PageHeader } from '../components/Common'
 import { useAuth } from '../hooks/useAuth'
+import { useWorkspace } from '../hooks/useWorkspace'
+import { moduleTitle } from '../lib/themeTitles'
 import { useI18n } from '../lib/i18n'
 
 export function AccountView() {
   const { user, isAuthenticated, refresh } = useAuth()
+  const { state } = useWorkspace()
+  const theme = state.settings.theme
   const { t } = useI18n()
 
   return (
@@ -15,7 +19,7 @@ export function AccountView() {
       <PageHeader
         view="account"
         kicker={t('MY ACCOUNT / PRIVATE CLOUD')}
-        title={t('Your atelier, under your name.')}
+        title={t(moduleTitle(theme, 'account'))}
         copy={t('Create or open your private account with Kimi. Your workspace follows your sign-in, while local audio remains on each device.')}
       />
 

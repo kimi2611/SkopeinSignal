@@ -1,5 +1,6 @@
 export type Tier = 'radar' | 'main' | 'supplement' | 'archive'
 export type UiLocale = 'en' | 'zh-CN' | 'de'
+export type AtelierTheme = 'toot-puddle' | 'forest-dusk' | 'mist-dawn' | 'whimsical' | 'pure'
 export type EpisodeStatus = 'inbox' | 'queue' | 'listened' | 'skipped' | 'archived'
 export type EpisodeLens = 'aithrascope' | 'dikelens'
 export type EpisodeDurationCategory = 'long' | 'medium' | 'micro'
@@ -187,6 +188,7 @@ export interface CardProgress {
 
 export interface WorkspaceSettings {
   uiLocale: UiLocale
+  theme: AtelierTheme
   longCap: number
   mediumCap: number
   microCap: number

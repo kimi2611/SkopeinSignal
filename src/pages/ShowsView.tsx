@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { PageHeader, RefreshButton } from '../components/Common'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { TIER_SHORT } from '../lib/format'
+import { moduleTitle } from '../lib/themeTitles'
 import { useI18n } from '../lib/i18n'
 import { publicHttpUrlError } from '../lib/publicUrl'
 import { TIER_LABELS, type PodcastShow, type Tier } from '../types'
@@ -19,13 +20,14 @@ const TIER_COPY: Record<Tier, string> = {
 
 export function ShowsView() {
   const { state } = useWorkspace()
+  const theme = state.settings.theme
   const { t } = useI18n()
   const [editingId, setEditingId] = useState<string | null>(null)
   const editing = state.shows.find((show) => show.id === editingId) ?? null
 
   return (
     <div className="page-wrap">
-      <PageHeader view="shows" kicker={t('SHOWS / FOUR TIERS')} title={t('Every show has one job.')} copy={t('Tiering resolves role conflict rather than simply deleting similar shows. Make each role explicit so episode selection becomes an actionable decision.')} />
+      <PageHeader view="shows" kicker={t('SHOWS / FOUR TIERS')} title={t(moduleTitle(theme, 'shows'))} copy={t('Tiering resolves role conflict rather than simply deleting similar shows. Make each role explicit so episode selection becomes an actionable decision.')} />
       <div className="tier-summary">{TIER_ORDER.map((tier) => <div key={tier}><span>{t(TIER_SHORT[tier])}</span><strong>{state.shows.filter((show) => show.tier === tier).length}</strong></div>)}</div>
       <div className="show-groups">
         {TIER_ORDER.map((tier) => (

@@ -1,10 +1,13 @@
 import { AudioLines, BookOpen, ExternalLink, Pause, Play, ShieldCheck } from 'lucide-react'
 import { AssetUpdateButton } from '../components/AssetUpdateButton'
 import { PageHeader } from '../components/Common'
+import { MIST_DAWN_ART_BY_RECORDING, MIST_DAWN_ART_CREDIT } from '../data/mistDawnRecordingArt'
 import { ILLUSTRATION_BY_RECORDING } from '../data/recordingIllustrations'
 import { PERFORMANCE_RECORDINGS } from '../data/recordings'
 import { useMusicPlayer } from '../hooks/useMusicPlayer'
+import { useWorkspace } from '../hooks/useWorkspace'
 import { useI18n } from '../lib/i18n'
+import { moduleTitle } from '../lib/themeTitles'
 import { formatTimecode } from '../lib/transcript'
 
 const INSTRUMENT_ORDER = ['Piano', 'Flute', 'Classical guitar', 'Harp', 'Cello', 'Bassoon', 'Symphony orchestra']
@@ -12,14 +15,19 @@ const INSTRUMENT_ORDER = ['Piano', 'Flute', 'Classical guitar', 'Harp', 'Cello',
 export function GalleryView() {
   const { t } = useI18n()
   const { recording, recordingId, playing, podcastPlaying, currentTime, duration, volume, selectRecording, togglePerformance, seek, setVolume } = useMusicPlayer()
-  const illustration = ILLUSTRATION_BY_RECORDING[recording.id]
+  const { state } = useWorkspace()
+  const theme = state.settings.theme
+  const showIllustrations = theme === 'toot-puddle' || theme === 'mist-dawn'
+  const mistDawn = theme === 'mist-dawn'
+  const artByRecording = mistDawn ? MIST_DAWN_ART_BY_RECORDING : ILLUSTRATION_BY_RECORDING
+  const illustration = artByRecording[recording.id]
 
   return (
     <div className="page-wrap gallery-page music-only-page">
       <PageHeader
         view="gallery"
         kicker={t('BROWSING SALON / REAL RECORDINGS')}
-        title={t('Real musicians for the browsing hour.')}
+        title={t(moduleTitle(theme, 'gallery'))}
         copy={t('Choose from twenty-two performances: thirteen unaccompanied instrumental solos, two chamber works with piano, one wind quintet, four soloist-with-orchestra recordings (a bassoon concerto, two Debussy harp dances with string orchestra, and Mozart’s concerto for flute and harp), and two purely instrumental orchestral recordings. Every track is a public-domain or reusable-licensed performance by named musicians—not a browser-generated imitation; choral works are excluded.')}
       />
 
@@ -28,8 +36,8 @@ export function GalleryView() {
       <section className="performance-desk music-only-desk" aria-labelledby="performance-title">
         <div className="performance-intro">
           <span className="section-index">{t('01 / RECORDED PERFORMANCE')}</span>
-          <h2 id="performance-title">{t('Seven instrument rooms, twenty-two picture-book stages')}</h2>
-          <p>{t('Each selection key keeps Holly Hobbie’s complete illustration in view. The scenes follow the mood of the music; no scene is shared with another performance or with the module introductions.')}</p>
+          <h2 id="performance-title">{mistDawn ? t('Seven instrument rooms, twenty-two Romantic paintings') : showIllustrations ? t('Seven instrument rooms, twenty-two picture-book stages') : t('Seven instrument rooms, twenty-two recorded performances')}</h2>
+          <p>{mistDawn ? t('Each selection key keeps a complete Caspar David Friedrich painting in view. The scenes follow the mood of the music; no painting is shared with another performance, with the picture-book set, or with the module introductions.') : showIllustrations ? t('Each selection key keeps Holly Hobbie’s complete illustration in view. The scenes follow the mood of the music; no scene is shared with another performance or with the module introductions.') : t('This theme keeps the complete performance collection and its credits without accompanying illustrations. Choose by composer, work, instrument, or performer.')}</p>
           <div className="performance-facts"><span><small>{t('FORMAT')}</small><strong>{t(recording.format)}</strong></span><span><small>{t('COMPOSER')}</small><strong>{recording.composer}</strong></span><span><small>{t('LICENSE')}</small><strong>{t(recording.license)}</strong></span></div>
         </div>
 
@@ -39,14 +47,14 @@ export function GalleryView() {
             return (
               <section className="recording-instrument-room" key={instrument} aria-labelledby={`instrument-${instrument.replaceAll(' ', '-').toLowerCase()}`}>
                 <header><h3 id={`instrument-${instrument.replaceAll(' ', '-').toLowerCase()}`}>{t(instrument)}</h3><span>{t('{count} performances', { count: items.length })}</span></header>
-                <div className="recording-picture-grid" role="group" aria-label={t(instrument)}>
+                <div className={`recording-picture-grid${showIllustrations ? '' : ' is-text-only'}`} role="group" aria-label={t(instrument)}>
                   {items.map((item) => {
-                    const art = ILLUSTRATION_BY_RECORDING[item.id]
+                    const art = artByRecording[item.id]
                     const active = recordingId === item.id
                     return (
-                      <button type="button" key={item.id} className={`recording-illustration-key${active ? ' active' : ''}`} aria-pressed={active} onClick={() => selectRecording(item.id)}>
-                        <span className="recording-illustration-frame"><img src={art.src} alt={`${t(art.book)}: ${t(art.scene)}`} loading="lazy" /></span>
-                        <span className="recording-key-copy"><strong>{item.work}</strong><small>{t(item.character)}</small><em>{t(art.scene)}</em></span>
+                      <button type="button" key={item.id} className={`recording-illustration-key${active ? ' active' : ''}${showIllustrations ? '' : ' is-text-only'}`} aria-pressed={active} onClick={() => selectRecording(item.id)}>
+                        {showIllustrations && <span className="recording-illustration-frame"><img src={art.src} alt={`${t(art.book)}: ${t(art.scene)}`} loading="lazy" /></span>}
+                        <span className="recording-key-copy"><strong>{item.work}</strong><small>{t(item.character)}</small>{showIllustrations && <em>{t(art.scene)}</em>}</span>
                       </button>
                     )
                   })}
@@ -65,7 +73,7 @@ export function GalleryView() {
         <div className="recording-timeline"><input className="recording-seek" type="range" min="0" max={duration || 1} step="0.1" value={Math.min(currentTime, duration || 1)} disabled={!duration} aria-label={t('Recording position')} onChange={(event) => seek(Number(event.target.value))} /><span>{formatTimecode(currentTime)} / {formatTimecode(duration)}</span></div>
 
         <div className="recording-credit"><ShieldCheck size={18} /><div><strong>{t('Performance credit')}</strong><p>{recording.work} · {recording.performer}</p><p>{t(recording.modification)} {t('No performer or ensemble endorsement is implied.')}</p></div><div className="recording-credit-links"><a href={recording.sourceUrl} target="_blank" rel="noreferrer">{t('Source recording')}<ExternalLink size={13} /></a><a href={recording.licenseUrl} target="_blank" rel="noreferrer">{t('License details')}<ExternalLink size={13} /></a></div></div>
-        <div className="recording-credit illustration-credit"><BookOpen size={18} /><div><strong>{t('Picture-book illustration credit')}</strong><p>{illustration.book}{illustration.bookYear ? ` (${illustration.bookYear})` : ''} · {t(illustration.scene)}</p><p>{t('Illustration: Holly Hobbie · Toot & Puddle · complete page/scene; resized for the selection key, with any removed text or margins lying outside the complete illustration.')} {t('Copyright remains with the artist and publisher; shown here as a credited picture-book reference, not as an open-licensed asset.')}</p></div><div className="recording-credit-links"><a href={illustration.sourceUrl} target="_blank" rel="noreferrer">{t(illustration.sourceLabel)}<ExternalLink size={13} /></a></div></div>
+        {showIllustrations && <div className="recording-credit illustration-credit"><BookOpen size={18} /><div><strong>{mistDawn ? t('Romantic painting credit') : t('Picture-book illustration credit')}</strong><p>{illustration.book}{illustration.bookYear ? ` (${illustration.bookYear})` : ''} · {t(illustration.scene)}</p>{mistDawn ? <p>{t(MIST_DAWN_ART_CREDIT)}</p> : <p>{t('Illustration: Holly Hobbie · Toot & Puddle · complete page/scene; resized for the selection key, with any removed text or margins lying outside the complete illustration.')} {t('Copyright remains with the artist and publisher; shown here as a credited picture-book reference, not as an open-licensed asset.')}</p>}</div><div className="recording-credit-links"><a href={illustration.sourceUrl} target="_blank" rel="noreferrer">{t(illustration.sourceLabel)}<ExternalLink size={13} /></a></div></div>}
         <p className="performance-note"><AudioLines size={15} />{t('Music continues when you switch modules. Starting real podcast audio pauses it; use the floating controls to pause, return here, or stop.')}</p>
       </section>
     </div>

@@ -2,15 +2,21 @@ import { useState } from 'react'
 import { ExternalLink, Info, X } from 'lucide-react'
 import { artworkForEpisode, HISTORICAL_ARTWORKS } from '../../data/artworks'
 import { ART_GUIDE_BY_ARTWORK } from '../../data/artGuides'
+import { MIST_DAWN_ART_GUIDE_BY_ARTWORK } from '../../data/mistDawnArtGuides'
 import { AssetUpdateButton } from '../AssetUpdateButton'
 import { useI18n } from '../../lib/i18n'
+import { useWorkspace } from '../../hooks/useWorkspace'
 
 export function ArtworkViewer({ episodeId }: { episodeId: string }) {
   const { t } = useI18n()
+  const { state } = useWorkspace()
+  const theme = state.settings.theme
+  const showGuide = theme === 'toot-puddle' || theme === 'mist-dawn'
+  const mistDawn = theme === 'mist-dawn'
   const [artworkId, setArtworkId] = useState(() => artworkForEpisode(episodeId).id)
   const [showNote, setShowNote] = useState(false)
   const artwork = HISTORICAL_ARTWORKS.find((item) => item.id === artworkId) ?? HISTORICAL_ARTWORKS[0]
-  const guide = ART_GUIDE_BY_ARTWORK[artwork.id]
+  const guide = (mistDawn ? MIST_DAWN_ART_GUIDE_BY_ARTWORK : ART_GUIDE_BY_ARTWORK)[artwork.id]
 
   return (
     <div className="living-canvas-body historical-artwork">
@@ -20,20 +26,20 @@ export function ArtworkViewer({ episodeId }: { episodeId: string }) {
           className="artwork-frame"
           onClick={() => setShowNote((value) => !value)}
           aria-expanded={showNote}
-          aria-label={showNote ? t('Close the picture-book guide') : t('Open the picture-book guide')}
+          aria-label={showNote ? t('Close artwork details') : showGuide ? (mistDawn ? t('Open the Romantic painting guide') : t('Open the picture-book guide')) : t('Open artwork details')}
         >
           <img src={artwork.src} alt={t('{title} by {artist}', { title: artwork.title, artist: artwork.artist })} loading="lazy" decoding="async" />
-          <span className="artwork-info-badge">{showNote ? <X size={13} /> : <Info size={13} />}{showNote ? t('Close guide') : t('Picture-book guide')}</span>
+          <span className="artwork-info-badge">{showNote ? <X size={13} /> : <Info size={13} />}{showNote ? t('Close details') : showGuide ? (mistDawn ? t('Romantic painting guide') : t('Picture-book guide')) : t('Artwork details')}</span>
         </button>
         {showNote && (
           <div className="artwork-note" role="note">
-            <div className="art-guide-reveal">
+            {showGuide && <div className="art-guide-reveal">
               <img className="art-guide-image" src={guide.src} alt={t(guide.scene)} loading="lazy" />
               <div className="art-guide-reading">
-                <span>{t('A picture-book way of looking')}</span>
+                <span>{mistDawn ? t('A Romantic way of looking') : t('A picture-book way of looking')}</span>
                 <p>{t(guide.guide)}</p>
               </div>
-            </div>
+            </div>}
             <div className="artwork-credit-grid">
               <section className="artwork-credit-block" aria-label={t('Historical artwork credits')}>
                 <strong>{t('Historical artwork')}</strong>
@@ -41,12 +47,12 @@ export function ArtworkViewer({ episodeId }: { episodeId: string }) {
                 <small>{artwork.artist} · {artwork.date} · {artwork.medium} · {artwork.collection} · {t(artwork.license)}</small>
                 <a href={artwork.sourceUrl} target="_blank" rel="noreferrer">{t('Work & rights')}<ExternalLink size={12} /></a>
               </section>
-              <section className="artwork-credit-block" aria-label={t('Picture-book illustration credits')}>
-                <strong>{t('Picture-book illustration')}</strong>
-                <small>Holly Hobbie · {guide.book}{guide.bookYear ? ` (${guide.bookYear})` : ''} · {t(guide.scene)}</small>
-                <small>{t('Complete interior page or scene; resized without cropping. Copyrighted picture-book reproduction, not public domain or openly licensed.')}</small>
+              {showGuide && <section className="artwork-credit-block" aria-label={mistDawn ? t('Romantic painting credits') : t('Picture-book illustration credits')}>
+                <strong>{mistDawn ? t('Romantic painting') : t('Picture-book illustration')}</strong>
+                <small>{mistDawn ? '' : 'Holly Hobbie · '}{guide.book}{guide.bookYear ? ` (${guide.bookYear})` : ''} · {t(guide.scene)}</small>
+                <small>{mistDawn ? t('Complete painting; resized without cropping the composition. Caspar David Friedrich (1774–1849), public domain.') : t('Complete interior page or scene; resized without cropping. Copyrighted picture-book reproduction, not public domain or openly licensed.')}</small>
                 <a href={guide.sourceUrl} target="_blank" rel="noreferrer">{t(guide.sourceLabel)}<ExternalLink size={12} /></a>
-              </section>
+              </section>}
             </div>
             <AssetUpdateButton src={artwork.src} />
           </div>

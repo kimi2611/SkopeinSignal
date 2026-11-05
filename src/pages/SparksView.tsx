@@ -12,6 +12,7 @@ import { useWorkspace } from '../hooks/useWorkspace'
 import { uid } from '../lib/format'
 import { useI18n, ti } from '../lib/i18n'
 import { consumeEpisodeTarget, SPARK_EPISODE_KEY } from '../lib/studyNavigation'
+import { moduleTitle } from '../lib/themeTitles'
 import { transcriptToText } from '../lib/transcript'
 import { useSpeechInput } from '../hooks/useSpeechInput'
 import type { Episode, Spark, SparkReply, ViewKey } from '../types'
@@ -43,6 +44,7 @@ function sparksErrorCode(err: unknown): string {
 
 export function SparksView({ onNavigate }: { onNavigate: (view: ViewKey) => void }) {
   const { state, saveSpark, removeSpark } = useWorkspace()
+  const theme = state.settings.theme
   const { t, locale } = useI18n()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
 
@@ -164,7 +166,7 @@ export function SparksView({ onNavigate }: { onNavigate: (view: ViewKey) => void
       <PageHeader
         view="sparks"
         kicker={t('IDEA SPARKS / AI FEEDBACK')}
-        title={t('Catch the idea while it is still glowing.')}
+        title={t(moduleTitle(theme, 'sparks'))}
         copy={t('Right after an episode, write or dictate the thought that surfaced. The atelier’s AI answers with an honest evaluation, what works, and concrete next steps. AI calls are billed to the site owner, so this module requires sign-in.')}
       />
 

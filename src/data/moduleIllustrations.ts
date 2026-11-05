@@ -3,7 +3,7 @@ import type { ViewKey } from '../types'
 export interface ModuleIllustration {
   src: string
   book: string
-  bookYear: number | null
+  bookYear: number | string | null
   scene: string
   source: string
 }
@@ -21,7 +21,7 @@ const PLAYFUL = 'https://www.theplayfulpeacock.com/products/toot-puddle-let-it-s
 
 // Complete digital Holly Hobbie interiors: no covers, photographed books,
 // Chinese text, in-image Chinese watermarks, or cross-group scene reuse.
-export const MODULE_ILLUSTRATIONS: Partial<Record<ViewKey, ModuleIllustration>> = {
+export const MODULE_ILLUSTRATIONS: Record<ViewKey, ModuleIllustration> = {
   week: {
     src: '/module-pigs/week.webp', book: TOOT, bookYear: 1997,
     scene: 'A week away, a week home',

@@ -15,6 +15,7 @@ const STORAGE_KEY = 'tingwen.workspace.v1'
 
 export const DEFAULT_SETTINGS: WorkspaceSettings = {
   uiLocale: 'en',
+  theme: 'toot-puddle',
   longCap: 4,
   mediumCap: 7,
   microCap: 3,
@@ -322,6 +323,7 @@ function migrateSavedState(saved: WorkspaceState): WorkspaceState {
     seedRevision: CURRENT_SEED_REVISION,
     settings: {
       uiLocale: legacySettings.uiLocale && ['en', 'zh-CN', 'de'].includes(legacySettings.uiLocale) ? legacySettings.uiLocale : 'en',
+      theme: legacySettings.theme && ['toot-puddle', 'forest-dusk', 'mist-dawn', 'whimsical', 'pure'].includes(legacySettings.theme) ? legacySettings.theme : DEFAULT_SETTINGS.theme,
       longCap: legacySettings.longCap === 2 ? 4 : legacySettings.longCap ?? DEFAULT_SETTINGS.longCap,
       mediumCap: legacySettings.mediumCap ?? DEFAULT_SETTINGS.mediumCap,
       microCap: legacySettings.microCap ?? DEFAULT_SETTINGS.microCap,

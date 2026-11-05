@@ -6,6 +6,7 @@ import { ImportWords } from '../components/cards/ImportWords'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { isDue, isNew, reviewCard, type ReviewGrade } from '../lib/cards'
 import { familyByEntry, type LemmaFamily } from '../lib/lemma'
+import { moduleTitle } from '../lib/themeTitles'
 import { useI18n } from '../lib/i18n'
 import { formatTimecode } from '../lib/transcript'
 import type { CardProgress, PodcastShow, VocabularyEntry } from '../types'
@@ -47,6 +48,7 @@ function collapseToFamilyRepresentatives(entries: VocabularyEntry[], families: M
 
 export function CardsView() {
   const { state, saveCardProgress } = useWorkspace()
+  const theme = state.settings.theme
   const { t, locale } = useI18n()
   const [filter, setFilter] = useState<DeckFilter>({ language: 'all', episodeId: 'all', status: 'all' })
   const [revealed, setRevealed] = useState(false)
@@ -96,7 +98,7 @@ export function CardsView() {
       <PageHeader
         view="cards"
         kicker={t('VOCABULARY / SPACED REPETITION')}
-        title={t('Your marked words, ready to recall.')}
+        title={t(moduleTitle(theme, 'cards'))}
         copy={t('Every saved vocabulary entry becomes a card automatically — and whole word lists import in one batch. Review locally with Anki-style Again, Hard, Good, and Easy scheduling, or run a Quizlet-style written test: built locally for free, or by the site’s AI for harder distractors. No AnkiWeb account or synchronization.')}
         actions={<div className="cards-actions"><button type="button" className="btn btn-secondary" onClick={() => setShowImport((value) => !value)}><Import size={16} />{t(showImport ? 'Close import' : 'Import words')}</button><div className="cards-mode" role="group" aria-label={t('Deck mode')}><button type="button" className={mode === 'review' ? 'active' : ''} onClick={() => setMode('review')}><PencilLine size={15} />{t('Review')}</button><button type="button" className={mode === 'test' ? 'active' : ''} onClick={() => setMode('test')}><ClipboardList size={15} />{t('Test')}</button></div></div>}
       />

@@ -11,6 +11,7 @@ import { TranscriptionStatus } from './components/TranscriptionStatus'
 import { MusicPlayerProvider } from './hooks/useMusicPlayer'
 import { findDuplicatePairs } from './lib/dedupe'
 import { I18nProvider, useI18n } from './lib/i18n'
+import { applyThemeChrome } from './lib/themeChrome'
 import { MODULE_ORDER } from './lib/moduleOrder'
 import { LearningLoopNavItem } from './components/LearningLoopNav'
 const WeekView = lazy(() => import('./pages/WeekView').then((module) => ({ default: module.WeekView })))
@@ -72,6 +73,10 @@ export default function App() {
 
 function LocalizedApp() {
   const { state } = useWorkspace()
+  useEffect(() => {
+    applyThemeChrome(state.settings.theme)
+    return () => { delete document.documentElement.dataset.theme }
+  }, [state.settings.theme])
   return (
     <I18nProvider locale={state.settings.uiLocale}>
       <MusicPlayerProvider>

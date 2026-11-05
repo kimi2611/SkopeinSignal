@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ArrowRight, BookOpen, CircleAlert, Clock3 } from 'lucide-react'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { getEpisodeDurationCategory } from '../lib/format'
+import { moduleTitle } from '../lib/themeTitles'
 import { useI18n } from '../lib/i18n'
 import { getEpisodeLens, getEpisodeValueCategory, LENS_NAMES } from '../lib/lenses'
 import { AddManualButton, FeedProgress, PageHeader, RefreshButton } from '../components/Common'
@@ -11,6 +12,7 @@ import type { EpisodeLens, ViewKey } from '../types'
 
 export function WeekView({ onNavigate }: { onNavigate: (view: ViewKey) => void }) {
   const { state } = useWorkspace()
+  const theme = state.settings.theme
   const { t } = useI18n()
   const [lens, setLens] = useState<'all' | EpisodeLens>('all')
   const queue = state.episodes.filter((episode) => episode.status === 'queue')
@@ -29,7 +31,7 @@ export function WeekView({ onNavigate }: { onNavigate: (view: ViewKey) => void }
       <PageHeader
         view="week"
         kicker={t('WEEKLY LISTENING DESK')}
-        title={t('This week, listen only to what deserves to remain.')}
+        title={t(moduleTitle(theme, 'week'))}
         copy={t('Set an attention budget before choosing content. Separate quotas for long interviews, medium episodes, and micro discussions keep “core listening” from becoming “every episode.”')}
         actions={<><AddManualButton /><RefreshButton /></>}
       />

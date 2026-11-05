@@ -153,6 +153,7 @@
   .mobile-nav-layer { position: fixed; inset: 0; z-index: 40; }
   .nav-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: rgba(53, 43, 33, .46); }
   .mobile-drawer { position: absolute; inset: 0 auto 0 0; width: min(320px, 88vw); background: var(--paper-ground); box-shadow: 18px 0 50px rgba(53, 43, 33, .16); animation: drawer-in 200ms ease-out; }
+  .mobile-drawer .sidebar-inner { height: 100dvh; overflow-y: auto; scrollbar-width: thin; padding-top: max(28px, env(safe-area-inset-top)); padding-bottom: max(20px, env(safe-area-inset-bottom)); }
   .drawer-close { position: absolute; top: 10px; right: 10px; z-index: 2; }
   @keyframes drawer-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
 
@@ -2922,3 +2923,203 @@
   .handoff-composite-actions { align-items: stretch; flex-direction: column; }
   .handoff-composite-actions .btn { width: 100%; justify-content: center; }
 }
+
+
+/* Four saved atelier moods. Layout and interaction stay unchanged. */
+:root[data-theme='forest-dusk'] {
+  --paper-ground: #f0ece0;
+  --paper-body: #f6f3ea;
+  --paper-card: #fcfbf5;
+  --ink-strong: #2c3324;
+  --ink-muted: #56604a;
+  --ink-faint: #616c4d;
+  --vermilion: #6e5f2e;
+  --vermilion-action: #565023;
+  --vermilion-soft: #e4dcc2;
+  --line-warm: #d6d0ba;
+  --success-warm: #46704d;
+  --error-warm: #9c4630;
+  --forest: #2b3527;
+  --forest-raised: #46523e;
+  --teal: #6e7a6a;
+  --citron: #c2ab54;
+  --sage-soft: #e3e4d4;
+  --background: 46 33% 91%;
+  --foreground: 93 18% 17%;
+  --card: 48 56% 97%;
+  --card-foreground: 93 18% 17%;
+  --popover: 48 56% 97%;
+  --popover-foreground: 93 18% 17%;
+  --primary: 47 39% 31%;
+  --primary-foreground: 48 56% 97%;
+  --secondary: 48 26% 87%;
+  --secondary-foreground: 93 18% 17%;
+  --muted: 48 26% 87%;
+  --muted-foreground: 80 12% 37%;
+  --accent: 48 35% 82%;
+  --accent-foreground: 46 39% 30%;
+  --border: 46 18% 79%;
+  --input: 46 18% 79%;
+  --ring: 47 39% 31%;
+  --sidebar-background: 110 15% 18%;
+  --sidebar-foreground: 52 30% 92%;
+  --sidebar-primary: 45 42% 50%;
+  --sidebar-primary-foreground: 110 15% 15%;
+  --sidebar-accent: 105 12% 27%;
+  --sidebar-accent-foreground: 52 30% 92%;
+  --sidebar-border: 105 8% 32%;
+  --sidebar-ring: 45 45% 55%;
+}
+
+:root[data-theme='mist-dawn'] {
+  --paper-ground: #f5f2ea;
+  --paper-body: #faf8f2;
+  --paper-card: #fffefa;
+  --ink-strong: #22272c;
+  --ink-muted: #4a545e;
+  --ink-faint: #6b7680;
+  --vermilion: #3a5366;
+  --vermilion-action: #2c4152;
+  --vermilion-soft: #dde3e9;
+  --line-warm: #d9d5c6;
+  --success-warm: #4a7050;
+  --error-warm: #9c4630;
+  --forest: #24313c;
+  --forest-raised: #3a4c5c;
+  --teal: #647584;
+  --citron: #8496ab;
+  --sage-soft: #e1e5e9;
+  --background: 43 32% 94%;
+  --foreground: 210 13% 15%;
+  --card: 47 100% 99%;
+  --card-foreground: 210 13% 15%;
+  --popover: 47 100% 99%;
+  --popover-foreground: 210 13% 15%;
+  --primary: 206 28% 31%;
+  --primary-foreground: 47 100% 99%;
+  --secondary: 45 24% 89%;
+  --secondary-foreground: 210 13% 15%;
+  --muted: 45 24% 89%;
+  --muted-foreground: 210 12% 33%;
+  --accent: 209 20% 88%;
+  --accent-foreground: 207 30% 25%;
+  --border: 44 15% 84%;
+  --input: 44 15% 84%;
+  --ring: 206 28% 31%;
+  --sidebar-background: 207 25% 17%;
+  --sidebar-foreground: 45 30% 92%;
+  --sidebar-primary: 208 30% 58%;
+  --sidebar-primary-foreground: 207 25% 14%;
+  --sidebar-accent: 208 18% 25%;
+  --sidebar-accent-foreground: 45 30% 92%;
+  --sidebar-border: 208 15% 29%;
+  --sidebar-ring: 208 30% 58%;
+}
+
+:root[data-theme='whimsical'] {
+  --paper-ground: #f7edd6;
+  --paper-body: #fbf3e2;
+  --paper-card: #fdf8ea;
+  --ink-strong: #2d2010;
+  --ink-muted: #63512f;
+  --ink-faint: #77633f;
+  --vermilion: #c23a18;
+  --vermilion-action: #a02c10;
+  --vermilion-soft: #f2d3bd;
+  --line-warm: #e0cfa6;
+  --success-warm: #4a724e;
+  --error-warm: #9c3d24;
+  --forest: #3a2a12;
+  --forest-raised: #5f4a28;
+  --teal: #857f52;
+  --citron: #d8ab2a;
+  --sage-soft: #f0e2c2;
+  --background: 42 62% 90%;
+  --foreground: 35 48% 12%;
+  --card: 44 75% 95%;
+  --card-foreground: 35 48% 12%;
+  --popover: 44 75% 95%;
+  --popover-foreground: 35 48% 12%;
+  --primary: 9 82% 34%;
+  --primary-foreground: 44 75% 95%;
+  --secondary: 40 45% 84%;
+  --secondary-foreground: 35 48% 12%;
+  --muted: 40 45% 84%;
+  --muted-foreground: 40 24% 30%;
+  --accent: 12 62% 88%;
+  --accent-foreground: 9 82% 32%;
+  --border: 41 40% 76%;
+  --input: 41 40% 76%;
+  --ring: 9 82% 34%;
+  --sidebar-background: 35 52% 15%;
+  --sidebar-foreground: 42 60% 92%;
+  --sidebar-primary: 12 78% 58%;
+  --sidebar-primary-foreground: 35 52% 12%;
+  --sidebar-accent: 33 32% 26%;
+  --sidebar-accent-foreground: 42 60% 92%;
+  --sidebar-border: 33 30% 30%;
+  --sidebar-ring: 12 78% 58%;
+}
+
+:root[data-theme='pure'] {
+  --paper-ground: #fbf7f4;
+  --paper-body: #fcfaf7;
+  --paper-card: #ffffff;
+  --ink-strong: #332421;
+  --ink-muted: #6e504a;
+  --ink-faint: #8a6f68;
+  --vermilion: #a8503f;
+  --vermilion-action: #8a3f30;
+  --vermilion-soft: #f5e4df;
+  --line-warm: #e7dbd6;
+  --success-warm: #4a7050;
+  --error-warm: #9c4630;
+  --forest: #38251f;
+  --forest-raised: #5f423a;
+  --teal: #94736a;
+  --citron: #cf9a80;
+  --sage-soft: #f2e6e1;
+  --background: 26 47% 97%;
+  --foreground: 10 21% 16%;
+  --card: 0 100% 100%;
+  --card-foreground: 10 21% 16%;
+  --popover: 0 100% 100%;
+  --popover-foreground: 10 21% 16%;
+  --primary: 10 45% 45%;
+  --primary-foreground: 0 100% 100%;
+  --secondary: 20 25% 93%;
+  --secondary-foreground: 10 21% 16%;
+  --muted: 20 25% 93%;
+  --muted-foreground: 10 20% 36%;
+  --accent: 14 52% 92%;
+  --accent-foreground: 10 48% 36%;
+  --border: 20 20% 87%;
+  --input: 20 20% 87%;
+  --ring: 10 45% 45%;
+  --sidebar-background: 14 29% 17%;
+  --sidebar-foreground: 22 35% 92%;
+  --sidebar-primary: 12 52% 60%;
+  --sidebar-primary-foreground: 14 29% 14%;
+  --sidebar-accent: 14 22% 26%;
+  --sidebar-accent-foreground: 22 35% 92%;
+  --sidebar-border: 14 15% 30%;
+  --sidebar-ring: 12 52% 60%;
+}
+
+:root:not([data-theme='toot-puddle']) .module-pig-art img { object-fit: contain; object-position: center; }
+.theme-picker { min-width: 0; margin: 24px 0 0; padding: 0; border: 0; }
+.theme-picker legend { margin-bottom: 8px; color: var(--text-main); font-size: 13px; font-weight: 600; }
+.theme-options { display: grid; gap: 8px; }
+.theme-option { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 12px; align-items: center; width: 100%; padding: 12px; border: 1px solid var(--divider); border-radius: 4px; background: var(--raised-bg); color: var(--text-main); text-align: left; }
+.theme-option.is-selected { border-color: var(--accent-action); box-shadow: inset 0 0 0 1px var(--accent-action); }
+.theme-option > span:last-child { display: flex; min-width: 0; flex-direction: column; }
+.theme-option small { color: var(--accent-action); font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; }
+.theme-option strong { font-size: 13px; }
+.theme-option em { color: var(--text-secondary); font-size: 11px; font-style: normal; line-height: 1.45; }
+.theme-swatch { width: 42px; height: 42px; border: 1px solid var(--divider); border-radius: 50%; background: linear-gradient(135deg, #e9e7e1 50%, #a8563b 50%); }
+.theme-option--forest-dusk .theme-swatch { background: linear-gradient(135deg, #fcfbf5 50%, #2b3527 50%); }
+.theme-option--mist-dawn .theme-swatch { background: linear-gradient(135deg, #fffefa 50%, #3a5366 50%); }
+.theme-option--whimsical .theme-swatch { background: linear-gradient(135deg, #fefaee 50%, #c23a18 50%); }
+.theme-option--pure .theme-swatch { background: linear-gradient(135deg, #ffffff 50%, #a8503f 50%); }
+.recording-picture-grid.is-text-only { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.recording-illustration-key.is-text-only { min-height: 112px; }

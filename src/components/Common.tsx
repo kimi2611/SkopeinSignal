@@ -4,13 +4,15 @@ import { toast } from 'sonner'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { useI18n } from '../lib/i18n'
 import { useEpisodeActions } from './EpisodeActions'
-import { MODULE_ILLUSTRATIONS } from '../data/moduleIllustrations'
+import { getModuleIllustration } from '../data/publicDomainModuleThemes'
 import type { ViewKey } from '../types'
 
 export function ModuleIllustration({ view }: { view: ViewKey }) {
   const { t } = useI18n()
-  const illustration = MODULE_ILLUSTRATIONS[view]
-  if (!illustration) return null
+  const { state } = useWorkspace()
+  const themed = getModuleIllustration(state.settings.theme, view)
+  if (!themed) return null
+  const { illustration, artist } = themed
   const book = `${t(illustration.book)}${illustration.bookYear ? ` (${illustration.bookYear})` : ''}`
   const scene = t(illustration.scene)
   return (
@@ -20,15 +22,17 @@ export function ModuleIllustration({ view }: { view: ViewKey }) {
       </div>
       <figcaption>
         <span>{scene}</span>
-        <a href={illustration.source} target="_blank" rel="noreferrer" aria-label={t('Open illustration source: {book}', { book })}>{book} · Holly Hobbie</a>
+        <a href={illustration.source} target="_blank" rel="noreferrer" aria-label={t('Open illustration source: {book}', { book })}>{book} · {artist}</a>
       </figcaption>
     </figure>
   )
 }
 
 export function PageHeader({ kicker, title, copy, actions, view }: { kicker: string; title: string; copy: string; actions?: ReactNode; view?: ViewKey }) {
+  const { state } = useWorkspace()
+  const hasIllustration = Boolean(view && getModuleIllustration(state.settings.theme, view))
   return (
-    <header className={`page-header${view ? ' page-header--illustrated' : ''}`}>
+    <header className={`page-header${hasIllustration ? ' page-header--illustrated' : ''}`}>
       <div className="page-header-copy"><div className="section-kicker">{kicker}</div><h1>{title}</h1><p>{copy}</p></div>
       {actions && <div className="page-actions">{actions}</div>}
       {view && <ModuleIllustration view={view} />}

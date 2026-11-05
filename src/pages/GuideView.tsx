@@ -6,9 +6,12 @@ import { REPLAY_ENTRANCE_EVENT } from '../components/EntranceOverlay'
 import { HISTORICAL_ARTWORKS } from '../data/artworks'
 import { ART_GUIDES } from '../data/artGuides'
 import { MODULE_ILLUSTRATIONS } from '../data/moduleIllustrations'
+import { PUBLIC_DOMAIN_MODULE_THEMES } from '../data/publicDomainModuleThemes'
 import { PERFORMANCE_RECORDINGS } from '../data/recordings'
 import { RECORDING_ILLUSTRATIONS } from '../data/recordingIllustrations'
+import { useWorkspace } from '../hooks/useWorkspace'
 import { useI18n, ti } from '../lib/i18n'
+import { moduleTitle } from '../lib/themeTitles'
 import { MODULE_ORDER } from '../lib/moduleOrder'
 import type { ViewKey } from '../types'
 
@@ -32,6 +35,8 @@ const GUIDE_GROUPS: Array<{ key: string; label: string; hint: string; links: Arr
 
 export function GuideView({ onNavigate }: GuideViewProps) {
   const { t } = useI18n()
+  const { state } = useWorkspace()
+  const atelierTheme = state.settings.theme
   const [kimiQuestion, setKimiQuestion] = useState('')
 
   const kimiPresets = [
@@ -53,7 +58,7 @@ export function GuideView({ onNavigate }: GuideViewProps) {
 
   return (
     <div className="page-wrap guide-page">
-      <PageHeader view="guide" kicker={t('GUIDE / FROM CANDIDATE TO MEMORY')} title={t('A deliberate path through every episode.')} copy={t('Use this guide as an operating manual. Every section stays folded until you open it; start with the learning loop, then open the workflow, language, account, or reference sections as needed.')} actions={<button type="button" className="btn btn-primary" onClick={() => onNavigate('week')}>{t('Open this week')}</button>} />
+      <PageHeader view="guide" kicker={t('GUIDE / FROM CANDIDATE TO MEMORY')} title={t(moduleTitle(atelierTheme, 'guide'))} copy={t('Use this guide as an operating manual. Every section stays folded until you open it; start with the learning loop, then open the workflow, language, account, or reference sections as needed.')} actions={<button type="button" className="btn btn-primary" onClick={() => onNavigate('week')}>{t('Open this week')}</button>} />
 
       <nav className="guide-contents" aria-label={t('Guide contents')}>
         {GUIDE_GROUPS.map((group, index) => (
@@ -78,12 +83,12 @@ export function GuideView({ onNavigate }: GuideViewProps) {
               <article><strong>{t(MODULE_LABELS.cards)}</strong><p>{t('Import or paste vocabulary, review browser-local schedules, filter language or episode decks, collapse word-family variants, and run a free local test or an optional AI-built test.')}</p></article>
               <article><strong>{t(MODULE_LABELS.insights)}</strong><p>{t('Classify research value, generate or import a Kimi summary, create source-linked understanding records, and build cross-episode theme maps with a visible coverage receipt.')}</p></article>
               <article><strong>{t(MODULE_LABELS.sparks)}</strong><p>{t('Capture and evaluate an idea, recognise an Apple Pencil page, develop evolution stages and self-defense, pin evidence, and compare the idea with real scholarly metadata in Resources.')}</p></article>
-              <article><strong>{t(MODULE_LABELS.gallery)}</strong><p>{t('Choose a performance by instrument and illustration, play or pause it, seek and adjust volume, then use floating controls while browsing other modules. Episode audio takes priority.')}</p></article>
+              <article><strong>{t(MODULE_LABELS.gallery)}</strong><p>{t('Choose a performance by instrument and work, play or pause it, seek and adjust volume, then use floating controls while browsing other modules. Warm also offers picture-book selection images; the other themes keep the same recordings without them. Episode audio takes priority.')}</p></article>
               <article><strong>{t(MODULE_LABELS.shows)}</strong><p>{t('Assign each show to Signal Radar, Core Threads, Selective Listening, or Reference Library. Edit its role and public RSS / Atom address, save the changes, and refresh that show alone.')}</p></article>
               <article><strong>{t(MODULE_LABELS.dedupe)}</strong><p>{t('Review automatic and manually marked pairs. Compare both episode details, keep both or keep either side, and restore dismissed pairs. Nothing is deleted automatically.')}</p></article>
               <article><strong>{t(MODULE_LABELS.guide)}</strong><p>{t('Open step-by-step operating instructions, ask Kimi a prepared question, check common answers, and inspect recording, artwork, illustration, and license sources in Credits.')}</p></article>
               <article><strong>{t(MODULE_LABELS.account)}</strong><p>{t('Sign in with Kimi, make the first-device migration choice, monitor the 12 MB workspace limit, sync manually, resolve revision conflicts, or sign out without deleting the cloud copy.')}</p></article>
-              <article><strong>{t(MODULE_LABELS.settings)}</strong><p>{t('Change interface language, weekly caps and daily RSS, export or restore JSON, inspect offline dependencies, configure the advanced proxy, install to the Home Screen, replay the entrance, and repair failed feeds.')}</p></article>
+              <article><strong>{t(MODULE_LABELS.settings)}</strong><p>{t('Change interface language and visual theme, adjust weekly caps and daily RSS, export or restore JSON, inspect offline dependencies, configure the advanced proxy, install to the Home Screen, replay the entrance, and repair failed feeds.')}</p></article>
             </div>
             <div className="guide-actions">
               {MODULE_ORDER.filter((view) => view !== 'guide').map((view) => <button type="button" key={view} className="btn btn-ghost" onClick={() => onNavigate(view)}>{t(MODULE_LABELS[view])}</button>)}
@@ -276,7 +281,7 @@ export function GuideView({ onNavigate }: GuideViewProps) {
           <summary className="guide-section-title"><span>05</span><Music2 size={22} /><div><h2>{t('Keep recorded media in its proper moment')}</h2><p>{t('Podcast audio and recorded music never compete; artwork never becomes a static decoration.')}</p></div></summary>
           <div className="guide-fold-body">
           <ol className="guide-steps">
-            <li><strong>{t('Choose a performance by instrument or scene.')}</strong><p>{t('Open Performance Room and browse the seven instrument rooms. Select a complete picture-book key to load that recording; the active key, work, performer, format, composer, and licence identify the actual selection. Source recording and License details remain available below the player.')}</p></li>
+            <li><strong>{t('Choose a performance by instrument or scene.')}</strong><p>{t('Open Performance Room and browse the seven instrument rooms, then select a recording by its work and performer. Warm also provides a complete picture-book selection image for every recording; Mysterious, Contemplative, and Pure use text selection cards without those accompanying illustrations. The active work, performer, format, composer, licence, source recording, playback controls, and License details remain available in every theme.')}</p></li>
             <li><strong>{t('Play, pause, seek, and set volume.')}</strong><p>{t('Choose Play recording or Pause performance in the console. Drag Recording position after the duration loads to seek, and adjust Volume independently. The selected recording and position remain visible; starting real podcast audio pauses the performance, and the performance control is disabled while that podcast has priority.')}</p></li>
             <li><strong>{t('Continue in another module without losing control.')}</strong><p>{t('Switch modules while music plays and use the floating controls to pause, return to Performance Room, or stop completely. Returning to the room restores its timeline and volume controls. Recorded music is for browsing and handoff work; historical artworks still appear only during actual episode playback.')}</p></li>
           </ol>
@@ -377,7 +382,7 @@ export function GuideView({ onNavigate }: GuideViewProps) {
             <li><strong>{t('Share the site freely.')}</strong><p>{t('Once the site is published, its public link can be shared with anyone. A visitor opens a fresh local workspace with the default catalogue only—none of your episodes, transcripts, vocabulary, notes, or quiz history is included. To use cloud sync or the voice quiz, a visitor signs in with their own Kimi account, which creates a separate workspace bound to that account.')}</p></li>
             <li><strong>{t('Sharing never touches your cloud data.')}</strong><p>{t('Cloud workspace requests are authenticated and isolated per Kimi account: visitors cannot see, read, or overwrite your cloud workspace, and sign-out on any device leaves your cloud copy intact. Keep one billing caveat in mind—the voice quiz and sparks AI calls are billed to the site owner, whoever clicks the button.')}</p></li>
           </ol>
-          <div className="guide-data-grid"><article><Database size={18} /><h3>{t('Included in JSON')}</h3><p>{t('Shows, episodes, value categories, imported Kimi summaries, transcripts, vocabulary, card schedules, written notes, editable Apple Pencil strokes, quiz history, sparks with their AI feedback, playback positions, interface language, and settings.')}</p></article><article><AudioLines size={18} /><h3>{t('Kept separately')}</h3><p>{t('Local audio is in IndexedDB, not in JSON. Keep original files before clearing browser data or moving devices.')}</p></article><article><Settings size={18} /><h3>{t('Cloud sync & manual backup')}</h3><p>{t('Open My Account to create your private cloud workspace through Kimi sign-in; no separate local password is created. Use the same Kimi account on both iPads, choose whether to migrate the current device workspace on first sign-in, and let revision checks prevent an older device from silently overwriting newer work. JSON export and import remain available as manual backups.')}</p></article><article><BookOpenCheck size={18} /><h3>{t('External boundaries')}</h3><p>{t('Downloads and shares are not import receipts. Confirm KimiClaw files, LinguaCafe imports, Obsidian notes, and Goodnotes pages in those apps themselves.')}</p></article></div>
+          <div className="guide-data-grid"><article><Database size={18} /><h3>{t('Included in JSON')}</h3><p>{t('Shows, episodes, value categories, imported Kimi summaries, transcripts, vocabulary, card schedules, written notes, editable Apple Pencil strokes, quiz history, sparks with their AI feedback, playback positions, interface language, visual theme, and other settings.')}</p></article><article><AudioLines size={18} /><h3>{t('Kept separately')}</h3><p>{t('Local audio is in IndexedDB, not in JSON. Keep original files before clearing browser data or moving devices.')}</p></article><article><Settings size={18} /><h3>{t('Cloud sync & manual backup')}</h3><p>{t('Open My Account to create your private cloud workspace through Kimi sign-in; no separate local password is created. Use the same Kimi account on both iPads, choose whether to migrate the current device workspace on first sign-in, and let revision checks prevent an older device from silently overwriting newer work. JSON export and import remain available as manual backups.')}</p></article><article><BookOpenCheck size={18} /><h3>{t('External boundaries')}</h3><p>{t('Downloads and shares are not import receipts. Confirm KimiClaw files, LinguaCafe imports, Obsidian notes, and Goodnotes pages in those apps themselves.')}</p></article></div>
           <p className="guide-paragraph">{t('The app shell can reopen offline. Cloud sync, RSS refresh, online draft translation, public audio streaming, and external providers still require connectivity. The interface language is independent of the podcast’s own language and can be changed in Settings.')}</p>
           <p className="guide-paragraph">{t('The first visit opens with a click-to-enter curtain. Replay it in Settings. The animation never starts sound and respects reduced-motion preferences.')}</p>
           <div className="guide-actions"><button type="button" className="btn btn-secondary" onClick={() => onNavigate('account')}>{t('Open My Account')}</button><button type="button" className="btn btn-ghost" onClick={() => onNavigate('settings')}>{t('Open settings & backup')}</button><a className="btn btn-ghost" href="https://support.goodnotes.com/hc/en-us/articles/7353717816463-Import-files-into-Goodnotes" target="_blank" rel="noreferrer">{t('Goodnotes import help')}<ExternalLink size={14} /></a></div>
@@ -389,6 +394,8 @@ export function GuideView({ onNavigate }: GuideViewProps) {
           <div className="guide-fold-body">
             <ol className="guide-steps">
               <li><strong>{t('Change interface language without translating your sources.')}</strong><p>{t('Settings → Interface language switches controls, guidance, dialogs, and notifications among English, 中文, and Deutsch immediately. Podcast titles, transcripts, notes, show languages, and your own source material stay unchanged; the interface locale and speech-recognition language are separate decisions.')}</p></li>
+              <li><strong>{t('Choose and save a visual theme.')}</strong><p>{t('Open Settings → Visual theme and choose Warm, Contemplative, Mysterious, Whimsical, or Pure. Warm is the default and preserves all original Toot & Puddle illustrations. Mysterious uses a John Bauer deep-forest palette; Contemplative uses a Caspar David Friedrich mist-and-dawn palette; Whimsical uses Edward Lear nonsense drawings on cream paper. Each of these three themes has fourteen complete, uncropped module-header reproductions—one for every module, including Performance Room—with multilingual titles, semantic captions, artist, and source. Contemplative also pairs every recorded performance and every artwork guide with a complete, uncropped Friedrich painting chosen to match its mood, with artist, year, and source; Mysterious and Whimsical add no accompanying illustrations to individual recordings or artwork guides. Your selection is saved in this browser, included in workspace JSON, and synchronized with your private cloud workspace when signed in.')}</p></li>
+              <li><strong>{t('Understand Pure’s illustration boundary.')}</strong><p>{t('Pure hides every module illustration, every picture-book image attached to a performance, and every picture-book guide attached to a historical artwork. It does not remove the twenty-two recordings, playback and volume controls, historical artworks, artwork selection and details, copyright and source information, transcripts, notes, quizzes, or other learning functions. Mysterious and Whimsical likewise keep performance and artwork-guide areas text-only; Warm displays the original accompanying picture-book illustrations, and Contemplative displays its own set of Caspar David Friedrich paintings.')}</p></li>
               <li><strong>{t('Set attention caps and daily RSS behavior.')}</strong><p>{t('Under Weekly quotas, set long, medium, and micro caps within the offered ranges. Duration boundaries are shown beneath the fields. Check RSS automatically each day runs on the first opening of a day; manual Refresh buttons remain available whether the switch is on or off.')}</p></li>
               <li><strong>{t('Read offline diagnostics before replacing a workflow.')}</strong><p>{t('Under Reliability, offline state & dependencies, check Network, Offline app shell, Local audio, Web Speech, AI & cloud sync, and OpenAlex / Crossref. Copy reliability diagnostics copies only status, browser, sign-in, and proxy-configuration facts—not passwords, workspace content, or account tokens. Imported transcripts and saved records remain readable offline; RSS, cloud, public audio, online translation, and scholarly search still need connectivity.')}</p></li>
               <li><strong>{t('Keep long on-device transcription recoverable.')}</strong><p>{t('Bundled transcription models are deliberately excluded from the offline shell cache to protect iPadOS quotas. Load the setup once while online and keep the tab in the foreground during long recognition. If iPadOS suspends or reloads the page, the application job retains progress where possible and restores the unfinished setup draft; imported VTT, SRT, TXT, or Markdown remains the dependable fallback.')}</p></li>
@@ -450,27 +457,38 @@ export function GuideView({ onNavigate }: GuideViewProps) {
         <details id="guide-credits" className="guide-section guide-fold">
           <summary className="guide-section-title"><span>11</span><BookOpenCheck size={22} /><div><h2>{t('Credits & sources')}</h2><p>{t('Every recording, artwork, and illustration on the site, with its origin and license.')}</p></div></summary>
           <div className="guide-fold-body">
-          <p className="guide-paragraph guide-credits-note">{t('Five folded lists keep this section short — open a group to browse every entry with its license and source link.')}</p>
+          <p className="guide-paragraph guide-credits-note">{t('Eight folded lists keep this section short — open a group to browse every entry with its license and source link.')}</p>
 
           <details className="guide-credits-fold">
             <summary><span className="guide-credits-name">{t('Module picture-book vignettes')}</span><span className="guide-credits-count">{t('{count} entries', { count: Object.keys(MODULE_ILLUSTRATIONS).length })}</span></summary>
           <div className="guide-credits-block">
             <p className="guide-paragraph">{t('Each of the fourteen modules carries its own complete digital Holly Hobbie interior page or scene from the Toot & Puddle series, chosen for that module’s meaning — scenes are never shared between modules or with performance and artwork-guide illustrations. No covers, photographed books, Chinese text, or in-image Chinese watermarks are used. The entrance theatre separately stages four hand-traced transparent figures. These copyrighted reproductions are not public domain or openly licensed; review the relevant rights before publishing the site publicly. No endorsement by Holly Hobbie or the publishers is implied.')}</p>
             <ul className="guide-credits-list">
-              {(Object.keys(MODULE_ILLUSTRATIONS) as ViewKey[]).flatMap((view) => {
+              {(Object.keys(MODULE_ILLUSTRATIONS) as ViewKey[]).map((view) => {
                 const illustration = MODULE_ILLUSTRATIONS[view]
-                if (!illustration) return []
-                return [
+                return (
                   <li key={view}>
                     <strong>{t(MODULE_LABELS[view])}</strong>
                     <span>{t(illustration.book)}{illustration.bookYear ? ` (${illustration.bookYear})` : ''} — {t(illustration.scene)}</span>
                     <a href={illustration.source} target="_blank" rel="noreferrer">{t('Source')}<ExternalLink size={12} /></a>
-                  </li>,
-                ]
+                  </li>
+                )
               })}
             </ul>
           </div>
           </details>
+
+          {(Object.keys(PUBLIC_DOMAIN_MODULE_THEMES) as Array<keyof typeof PUBLIC_DOMAIN_MODULE_THEMES>).map((themeId) => {
+            const creditTheme = PUBLIC_DOMAIN_MODULE_THEMES[themeId]
+            const entries = Object.entries(creditTheme.illustrations) as Array<[ViewKey, (typeof creditTheme.illustrations)[ViewKey]]>
+            return <details className="guide-credits-fold" key={themeId}>
+              <summary><span className="guide-credits-name">{t(creditTheme.name)} · {creditTheme.artist}</span><span className="guide-credits-count">{t('{count} entries', { count: entries.length })}</span></summary>
+              <div className="guide-credits-block">
+                <p className="guide-paragraph">{t('Fourteen complete public-domain reproductions illustrate every module, including the Performance Room header. Individual performance recordings and artwork guides receive no new accompanying illustrations. Local WebP copies are resized without cropping.')}</p>
+                <ul className="guide-credits-list">{entries.map(([view, illustration]) => illustration && <li key={view}><strong>{t(MODULE_LABELS[view])}</strong><span>{t(illustration.book)}{illustration.bookYear ? ` (${illustration.bookYear})` : ''} — {t(illustration.scene)} · {creditTheme.artist}</span><a href={illustration.source} target="_blank" rel="noreferrer">{t('Source')}<ExternalLink size={12} /></a></li>)}</ul>
+              </div>
+            </details>
+          })}
 
           <details className="guide-credits-fold">
             <summary><span className="guide-credits-name">{t('Performance recordings')}</span><span className="guide-credits-count">{t('{count} entries', { count: PERFORMANCE_RECORDINGS.length })}</span></summary>

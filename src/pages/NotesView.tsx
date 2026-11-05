@@ -6,6 +6,7 @@ import { IeltsWorkshop } from '../components/IeltsWorkshop'
 import { PageHeader } from '../components/Common'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { downloadText } from '../lib/handoff'
+import { moduleTitle } from '../lib/themeTitles'
 import { useI18n } from '../lib/i18n'
 import { buildObsidianNewUri, launchObsidianUri, OBSIDIAN_DIRECT_URI_MAX } from '../lib/obsidian'
 import { consumeEpisodeTarget, consumeNotesDraft, NOTES_EPISODE_KEY, openStudyEpisode } from '../lib/studyNavigation'
@@ -25,6 +26,7 @@ function makeObsidianFilePath(folder: string): string {
 
 export function NotesView({ onNavigate }: { onNavigate: (view: ViewKey) => void }) {
   const { state, saveListeningNote, removeListeningNote } = useWorkspace()
+  const theme = state.settings.theme
   const { t, locale } = useI18n()
   const [mode, setMode] = useState<'write' | 'pencil' | 'ielts'>('write')
   const [query, setQuery] = useState('')
@@ -136,7 +138,7 @@ export function NotesView({ onNavigate }: { onNavigate: (view: ViewKey) => void 
 
   return (
     <div className="page-wrap notes-page">
-      <PageHeader view="notes" kicker={t('NOTEBOOK / LISTENING MEMORY')} title={t('Keep the thought, not just the timestamp.')} copy={t('A single notebook for episode reflections, open questions, and ideas worth revisiting. Timestamped entries made in the listening desk link back to the exact audio position.')} actions={mode === 'write' ? <button type="button" className="btn btn-secondary" onClick={exportNotes} disabled={!state.notes.length}><Download size={16} />{t('Export Markdown')}</button> : undefined} />
+      <PageHeader view="notes" kicker={t('NOTEBOOK / LISTENING MEMORY')} title={t(moduleTitle(theme, 'notes'))} copy={t('A single notebook for episode reflections, open questions, and ideas worth revisiting. Timestamped entries made in the listening desk link back to the exact audio position.')} actions={mode === 'write' ? <button type="button" className="btn btn-secondary" onClick={exportNotes} disabled={!state.notes.length}><Download size={16} />{t('Export Markdown')}</button> : undefined} />
       {episodeId && <WorkflowJourney episodeId={episodeId} current="draft" />}
 
       <div className="notes-mode-switch" role="tablist" aria-label={t('Notebook mode')}><button type="button" role="tab" aria-selected={mode === 'write'} className={mode === 'write' ? 'active' : ''} onClick={() => setMode('write')}><NotebookPen size={16} />{t('Written notes')}</button><button type="button" role="tab" aria-selected={mode === 'pencil'} className={mode === 'pencil' ? 'active' : ''} onClick={() => setMode('pencil')}><PenLine size={16} />{t('Apple Pencil mode')}</button><button type="button" role="tab" aria-selected={mode === 'ielts'} className={mode === 'ielts' ? 'active' : ''} onClick={() => setMode('ielts')}><GraduationCap size={16} />{t('IELTS Writing')}</button></div>

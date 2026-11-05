@@ -6,11 +6,13 @@ import { useEpisodeActions } from '../components/EpisodeActions'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { findDuplicatePairs } from '../lib/dedupe'
 import { formatDate, formatDuration } from '../lib/format'
+import { moduleTitle } from '../lib/themeTitles'
 import { useI18n } from '../lib/i18n'
 import type { DuplicatePair, Episode } from '../types'
 
 export function DedupeView() {
   const { state, dismissPair, undismissPair, addManualPair, skipEpisode } = useWorkspace()
+  const theme = state.settings.theme
   const { openDetail } = useEpisodeActions()
   const { t, locale } = useI18n()
   const [lastScan, setLastScan] = useState<string | null>(null)
@@ -46,7 +48,7 @@ export function DedupeView() {
 
   return (
     <div className="page-wrap">
-      <PageHeader view="dedupe" kicker={t('DEDUPE / HUMAN REVIEW')} title={t('Find similarity without deleting on your behalf.')} copy={t('Local rules check matching dedupe keys, guest hints, identical titles, and high title-token overlap. They do not understand full semantics, so every pair requires your confirmation — and you can mark a pair the rules missed, or restore a dismissed one.')} actions={<button type="button" className="btn btn-secondary" onClick={() => { setLastScan(new Date().toISOString()); toast.success(t('Scan complete: {count} pairs await review.', { count: pairs.length })) }}><ScanSearch size={16} />{t('Scan again')}</button>} />
+      <PageHeader view="dedupe" kicker={t('DEDUPE / HUMAN REVIEW')} title={t(moduleTitle(theme, 'dedupe'))} copy={t('Local rules check matching dedupe keys, guest hints, identical titles, and high title-token overlap. They do not understand full semantics, so every pair requires your confirmation — and you can mark a pair the rules missed, or restore a dismissed one.')} actions={<button type="button" className="btn btn-secondary" onClick={() => { setLastScan(new Date().toISOString()); toast.success(t('Scan complete: {count} pairs await review.', { count: pairs.length })) }}><ScanSearch size={16} />{t('Scan again')}</button>} />
       <div className="rule-strip"><span>{t('Same dedupe key → 100%')}</span><span>{t('Same title → 100%')}</span><span>{t('Same guest / title-prefix hint → at least 80%')}</span><span>{t('Title-token Jaccard ≥ 34% with at least 2 shared terms')}</span>{lastScan && <span>{t('Last scan {date} {time}', { date: formatDate(lastScan), time: new Date(lastScan).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) })}</span>}</div>
       {pairs.length ? <div className="pair-list">{pairs.map((pair) => (
         <section className="duplicate-pair" key={pair.key}>
