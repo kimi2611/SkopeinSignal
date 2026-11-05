@@ -82,7 +82,13 @@ export function serveStaticFiles(app: App) {
 
   app.notFound((c) => {
     const accept = c.req.header("accept") ?? "";
-    if (!accept.includes("text/html")) {
+    // Deep links (/whisper-lab, /login) must survive clients that don't send a
+    // browser Accept header: link previewers, the funnel's own health checks,
+    // and anything that defaults to */*. A path with no file extension is a
+    // route, not an asset — serve the shell and let the router decide. Real
+    // missing files keep the JSON 404 so a broken asset stays diagnosable.
+    const looksLikeRoute = !/\.[a-z0-9]+$/i.test(c.req.path);
+    if (!accept.includes("text/html") && !looksLikeRoute) {
       return c.json({ error: "Not Found" }, 404);
     }
     const indexPath = path.resolve(distPath, "index.html");
