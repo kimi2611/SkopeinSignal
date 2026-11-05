@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { AudioLines, CalendarDays, CircleHelp, Clock3, Inbox, Layers3, Library, Lightbulb, Menu, Mic, Music2, NotebookPen, ScanSearch, Settings, UserRound, X } from 'lucide-react'
 import { Route, Routes } from 'react-router'
 import { Toaster } from 'sonner'
@@ -13,23 +13,26 @@ import { findDuplicatePairs } from './lib/dedupe'
 import { I18nProvider, useI18n } from './lib/i18n'
 import { applyThemeChrome } from './lib/themeChrome'
 import { MODULE_ORDER } from './lib/moduleOrder'
-const WeekView = lazy(() => import('./pages/WeekView').then((module) => ({ default: module.WeekView })))
-const InboxView = lazy(() => import('./pages/InboxView').then((module) => ({ default: module.InboxView })))
-const ShowsView = lazy(() => import('./pages/ShowsView').then((module) => ({ default: module.ShowsView })))
-const DedupeView = lazy(() => import('./pages/DedupeView').then((module) => ({ default: module.DedupeView })))
-const StudyView = lazy(() => import('./pages/StudyView').then((module) => ({ default: module.StudyView })))
-const QuizView = lazy(() => import('./pages/QuizView').then((module) => ({ default: module.QuizView })))
-const SparksView = lazy(() => import('./pages/SparksView').then((module) => ({ default: module.SparksView })))
-const GalleryView = lazy(() => import('./pages/GalleryView').then((module) => ({ default: module.GalleryView })))
-const NotesView = lazy(() => import('./pages/NotesView').then((module) => ({ default: module.NotesView })))
-const InsightsView = lazy(() => import('./pages/InsightsView').then((module) => ({ default: module.InsightsView })))
-const CardsView = lazy(() => import('./pages/CardsView').then((module) => ({ default: module.CardsView })))
-const GuideView = lazy(() => import('./pages/GuideView').then((module) => ({ default: module.GuideView })))
-const AccountView = lazy(() => import('./pages/AccountView').then((module) => ({ default: module.AccountView })))
-const SettingsView = lazy(() => import('./pages/SettingsView').then((module) => ({ default: module.SettingsView })))
-const Login = lazy(() => import('./pages/Login'))
-const NotFound = lazy(() => import('./pages/NotFound'))
+import { createRoute, prefetchOnIdle } from './lib/lazyRoute'
+import { RouteBoundary } from './components/RouteBoundary'
+const WeekView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/WeekView').then((module) => ({ default: module.WeekView })))
+const InboxView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/InboxView').then((module) => ({ default: module.InboxView })))
+const ShowsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/ShowsView').then((module) => ({ default: module.ShowsView })))
+const DedupeView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/DedupeView').then((module) => ({ default: module.DedupeView })))
+const StudyView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/StudyView').then((module) => ({ default: module.StudyView })))
+const QuizView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/QuizView').then((module) => ({ default: module.QuizView })))
+const SparksView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/SparksView').then((module) => ({ default: module.SparksView })))
+const GalleryView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/GalleryView').then((module) => ({ default: module.GalleryView })))
+const NotesView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/NotesView').then((module) => ({ default: module.NotesView })))
+const InsightsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/InsightsView').then((module) => ({ default: module.InsightsView })))
+const CardsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/CardsView').then((module) => ({ default: module.CardsView })))
+const GuideView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/GuideView').then((module) => ({ default: module.GuideView })))
+const AccountView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/AccountView').then((module) => ({ default: module.AccountView })))
+const SettingsView = createRoute<{ onNavigate?: (view: ViewKey) => void }>(() => import('./pages/SettingsView').then((module) => ({ default: module.SettingsView })))
+const Login = createRoute(() => import('./pages/Login'))
+const NotFound = createRoute(() => import('./pages/NotFound'))
 import type { ViewKey } from './types'
+
 
 interface NavItem { key: ViewKey; label: string; english: string; icon: typeof CalendarDays }
 
@@ -57,7 +60,7 @@ function getViewFromHash(): ViewKey {
   return NAV_ITEMS.some((item) => item.key === key) ? key : 'week'
 }
 
-const WhisperLabView = lazy(() => import('./pages/WhisperLabView'))
+const WhisperLabView = createRoute(() => import('./pages/WhisperLabView'))
 
 export default function App() {
   return <Routes>
@@ -116,6 +119,26 @@ function AppShell() {
   }, [])
 
   useEffect(() => {
+    // Warm the route chunks while the browser is idle: a click should never be
+    // the thing that starts a network round trip to a possibly sleeping path.
+    return prefetchOnIdle([
+      () => import('./pages/StudyView'),
+      () => import('./pages/SettingsView'),
+      () => import('./pages/GuideView'),
+      () => import('./pages/GalleryView'),
+      () => import('./pages/AccountView'),
+      () => import('./pages/InboxView'),
+      () => import('./pages/CardsView'),
+      () => import('./pages/NotesView'),
+      () => import('./pages/QuizView'),
+      () => import('./pages/SparksView'),
+      () => import('./pages/ShowsView'),
+      () => import('./pages/DedupeView'),
+      () => import('./pages/InsightsView'),
+    ])
+  }, [])
+
+  useEffect(() => {
     if (!menuOpen) return
     const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setMenuOpen(false) }
     window.addEventListener('keydown', onKey)
@@ -141,6 +164,7 @@ function AppShell() {
         {storageError && <div className="storage-error global-storage-error" role="alert">{t(storageError)}</div>}
         {!online && <div className="offline-banner" role="status">{t('You are offline. Existing workspace data remains available; RSS updates require a connection.')}</div>}
         <div className="periodical-bar"><span>{t('PRIVATE LEARNING EDITION')}</span><span>{new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }).format(new Date())}</span></div>
+        <RouteBoundary resetKey={view}>
         <Suspense fallback={<RouteFallback />}>
           {view === 'week' && <WeekView onNavigate={navigate} />}
           {view === 'inbox' && <InboxView onNavigate={navigate} />}
@@ -157,6 +181,7 @@ function AppShell() {
           {view === 'account' && <AccountView onNavigate={navigate} />}
           {view === 'settings' && <SettingsView />}
         </Suspense>
+        </RouteBoundary>
       </div>
     </div><TranscriptionStatus view={view} onNavigate={navigate} /><MusicMiniPlayer view={view} onNavigate={navigate} /></>
   )

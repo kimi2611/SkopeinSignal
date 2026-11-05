@@ -1,4 +1,4 @@
-const CACHE = 'skopein-shell-v36'
+const CACHE = 'skopein-shell-v37'
 const CORE = [
   './manifest.webmanifest',
   './icons/icon-192-v52.png', './icons/icon-512-v52.png', './icons/icon-512-maskable-v52.png', './icons/apple-touch-icon-v52.png',
@@ -15,6 +15,26 @@ const CORE = [
 // the whole respondWith chain, breaking the very transcription fetch it tried
 // to accelerate. These paths are always served straight from the network.
 const NEVER_CACHE = /^\/(models|ort)\//
+
+// A chunk request that never settles is worse than one that fails: the module
+// loader stays pending, React keeps the Suspense fallback up, and the user has
+// no error to react to. Bound every asset fetch so a dead path becomes a fast
+// failure the app can retry.
+const ASSET_TIMEOUT_MS = 12000
+
+async function fetchWithDeadline(request, ms = ASSET_TIMEOUT_MS) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), ms)
+  try {
+    return await fetch(request, { signal: controller.signal })
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+function timedOut(error) {
+  return !!error && (error.name === 'AbortError' || error.name === 'TimeoutError')
+}
 
 async function safePut(cache, key, response) {
   try {
@@ -176,7 +196,7 @@ self.addEventListener('fetch', (event) => {
     if (isIllustration) {
       const cachedArt = await caches.match(request)
       try {
-        const fresh = await fetch(request)
+        const fresh = await fetchWithDeadline(request)
         if (fresh.status === 200) {
           const cache = await caches.open(CACHE)
           await safePut(cache, request, fresh.clone())
@@ -185,6 +205,7 @@ self.addEventListener('fetch', (event) => {
         return cachedArt || fresh
       } catch (error) {
         if (cachedArt) return cachedArt
+        if (timedOut(error)) return new Response('Artwork fetch timed out', { status: 504 })
         throw error
       }
     }
@@ -195,7 +216,7 @@ self.addEventListener('fetch', (event) => {
     // permanently unstyled page. Offline, the validated pre-cache still wins.
     if (cached && (!isBundleAsset || isExpectedAssetResponse(url, cached)) && !isBundleAsset) return cached
     try {
-      const response = await fetch(request)
+      const response = await fetchWithDeadline(request)
       if (response.status === 200 && (!isBundleAsset || isExpectedAssetResponse(url, response))) {
         const cache = await caches.open(CACHE)
         await safePut(cache, request, response.clone())
@@ -205,6 +226,9 @@ self.addEventListener('fetch', (event) => {
       return response
     } catch (error) {
       if (cached && (!isBundleAsset || isExpectedAssetResponse(url, cached))) return cached
+      // Fail fast and clearly: a rejected module load can be retried by the
+      // app, a hung one cannot.
+      if (timedOut(error)) return new Response('Asset fetch timed out', { status: 504 })
       throw error
     }
   })())
