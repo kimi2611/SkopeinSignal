@@ -3230,4 +3230,7 @@ export const de: Record<string, string> = {
   "07C · The learning loop — four features, one memory": "07C · Der Lernkreis — vier Funktionen, ein Gedächtnis",
   "08A · Settings, repair & recovery": "08A · Einstellungen, Reparatur & Wiederherstellung",
 
+  // — i18n-sync 2026-11-05: identity placeholders, translate below —
+  "See the whole loop in My Account.": "Den ganzen Kreis siehst du unter „Mein Konto“.",
+  "My Account carries the Learning footprint: the four learning modules, each with its count and latest output, so the loop you closed this week is visible at a glance. It is a read-only summary — open a module to work in it.": "„Mein Konto“ trägt die Lernspur: die vier Lernmodule, jeweils mit Anzahl und letzter Ausgabe, sodass der diese Woche geschlossene Kreis auf einen Blick sichtbar ist. Es ist eine schreibgeschützte Übersicht — zum Arbeiten öffne ein Modul.",
 }

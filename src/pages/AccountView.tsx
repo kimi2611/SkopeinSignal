@@ -3,12 +3,14 @@ import { Cloud, HardDrive, ShieldCheck, UserRound } from 'lucide-react'
 import { toast } from 'sonner'
 import { CloudSyncPanel } from '../components/CloudSync'
 import { PageHeader } from '../components/Common'
+import { LearningFootprint } from '../components/LearningLoopNav'
 import { useAuth } from '../hooks/useAuth'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { moduleTitle } from '../lib/themeTitles'
 import { useI18n } from '../lib/i18n'
+import type { ViewKey } from '../types'
 
-export function AccountView() {
+export function AccountView({ onNavigate }: { onNavigate: (view: ViewKey) => void }) {
   const { user, isAuthenticated, refresh } = useAuth()
   const { state } = useWorkspace()
   const theme = state.settings.theme
@@ -39,6 +41,11 @@ export function AccountView() {
       <section className="settings-section account-cloud-section" aria-labelledby="account-cloud-title">
         <div className="settings-heading"><span>01</span><div><h2 id="account-cloud-title">{t('Account & cloud workspace')}</h2><p>{t('The same Kimi authentication and revision-checked cloud workspace used throughout SkopeinSignal—never a second, simulated account.')}</p></div></div>
         <CloudSyncPanel />
+      </section>
+
+      <section className="settings-section account-loop-section" aria-labelledby="account-loop-title">
+        <div className="settings-heading"><span>02</span><div><h2 id="account-loop-title">{t('Learning footprint')}</h2><p>{t('FOUR MODULES · LATEST FIRST')}</p></div></div>
+        <LearningFootprint view="account" onNavigate={onNavigate} />
       </section>
 
       <div className="account-boundaries">

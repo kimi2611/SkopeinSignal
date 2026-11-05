@@ -3123,3 +3123,11 @@
 .theme-option--pure .theme-swatch { background: linear-gradient(135deg, #ffffff 50%, #a8503f 50%); }
 .recording-picture-grid.is-text-only { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
 .recording-illustration-key.is-text-only { min-height: 112px; }
+
+/* — Learning footprint moved into My Account (2026-11-05) — */
+.account-loop-section { max-width: none; margin-bottom: 24px; }
+.loop-footprint-list { display: flex; flex-direction: column; border-top: 1px solid var(--divider); }
+.loop-footprint-list .loop-nav-row { grid-template-columns: 20px minmax(0, 1fr) auto; gap: 11px; padding: 12px 10px; border-bottom: 1px solid color-mix(in oklab, var(--divider) 65%, transparent); border-radius: 0; }
+.loop-footprint-list .loop-nav-row:last-child { border-bottom: 0; }
+.loop-footprint-list .loop-nav-row strong { font-size: 13.5px; }
+.loop-footprint-list .loop-nav-row-body small { white-space: normal; line-height: 1.5; }

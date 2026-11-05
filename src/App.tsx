@@ -13,7 +13,6 @@ import { findDuplicatePairs } from './lib/dedupe'
 import { I18nProvider, useI18n } from './lib/i18n'
 import { applyThemeChrome } from './lib/themeChrome'
 import { MODULE_ORDER } from './lib/moduleOrder'
-import { LearningLoopNavItem } from './components/LearningLoopNav'
 const WeekView = lazy(() => import('./pages/WeekView').then((module) => ({ default: module.WeekView })))
 const InboxView = lazy(() => import('./pages/InboxView').then((module) => ({ default: module.InboxView })))
 const ShowsView = lazy(() => import('./pages/ShowsView').then((module) => ({ default: module.ShowsView })))
@@ -155,7 +154,7 @@ function AppShell() {
           {view === 'gallery' && <GalleryView />}
           {view === 'notes' && <NotesView onNavigate={navigate} />}
           {view === 'guide' && <GuideView onNavigate={navigate} />}
-          {view === 'account' && <AccountView />}
+          {view === 'account' && <AccountView onNavigate={navigate} />}
           {view === 'settings' && <SettingsView />}
         </Suspense>
       </div>
@@ -179,7 +178,6 @@ function SidebarContent({ view, onNavigate }: { view: ViewKey; onNavigate: (view
         const count = countFor(item.key)
         return <button type="button" key={item.key} className={`nav-item ${view === item.key ? 'active' : ''}`} onClick={() => onNavigate(item.key)} aria-current={view === item.key ? 'page' : undefined}><Icon size={18} /><span><strong>{t(item.label)}</strong><small>{t(item.english)}</small></span>{count !== null && count > 0 && <b>{count}</b>}</button>
       })}
-      <LearningLoopNavItem view={view} onNavigate={onNavigate} />
       </nav>
       <div className="sidebar-tiers"><div className="section-kicker">{t('FOUR TIERS')}</div>{(['radar', 'main', 'supplement', 'archive'] as const).map((tier, index) => <div key={tier}><span>{['00', '10', '20', '30'][index]}</span><p>{t(['Signal Radar', 'Core Threads', 'Selective Listening', 'Reference Library'][index])}</p><strong>{state.shows.filter((show) => show.tier === tier).length}</strong></div>)}</div>
       <div className="sidebar-foot"><CloudAccountControl /></div>

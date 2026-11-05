@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { ChevronDown, ChevronUp, History, Layers3, Lightbulb, Mic, NotebookPen } from 'lucide-react'
+import { useMemo } from 'react'
+import { ChevronUp, Layers3, Lightbulb, Mic, NotebookPen } from 'lucide-react'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { useI18n, ti } from '../lib/i18n'
 import { buildActivityTimeline, type ActivityKind } from '../lib/activity'
@@ -19,13 +19,12 @@ const LOOP_TARGETS: LoopTarget[] = [
   { kind: 'note', view: 'notes', label: ti('Notes'), icon: NotebookPen },
 ]
 
-/** B light version — sidebar aggregate entry: one expandable nav item that
- * lists the four learning modules with counts and each one's latest output.
- * Read-only; clicking a row navigates to that module. No new page. */
-export function LearningLoopNavItem({ view, onNavigate }: { view: ViewKey; onNavigate: (view: ViewKey) => void }) {
+/** The learning footprint: the four learning modules with counts and each
+ * one's latest output. Read-only; clicking a row navigates to that module.
+ * Lives in My Account (moved out of the sidebar 2026-11-05). */
+export function LearningFootprint({ view, onNavigate }: { view?: ViewKey; onNavigate: (view: ViewKey) => void }) {
   const { state } = useWorkspace()
   const { t, locale } = useI18n()
-  const [open, setOpen] = useState(false)
 
   const timeline = useMemo(
     () => buildActivityTimeline({ sparks: state.sparks, notes: state.notes, quizAttempts: state.quizAttempts, cardProgress: state.cardProgress, vocabulary: state.vocabulary }),
@@ -51,41 +50,27 @@ export function LearningLoopNavItem({ view, onNavigate }: { view: ViewKey; onNav
   }
 
   return (
-    <div className={`loop-nav ${open ? 'open' : ''}`}>
-      <button
-        type="button"
-        className={`nav-item loop-nav-toggle ${open ? 'active' : ''}`}
-        aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
-      >
-        <History size={18} />
-        <span><strong>{t('Learning footprint')}</strong><small>{t('FOUR MODULES · LATEST FIRST')}</small></span>
-        {open ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-      </button>
-      {open && (
-        <div className="loop-nav-panel" role="group" aria-label={t('Learning footprint')}>
-          {LOOP_TARGETS.map((target) => {
-            const Icon = target.icon
-            const info = byKind.get(target.kind)
-            const active = view === target.view
-            return (
-              <button
-                type="button"
-                key={target.kind}
-                className={`loop-nav-row ${active ? 'active' : ''}`}
-                onClick={() => { setOpen(false); onNavigate(target.view) }}
-              >
-                <Icon size={15} />
-                <span className="loop-nav-row-body">
-                  <strong>{t(target.label)}<b className="loop-nav-count">{info?.count ?? 0}</b></strong>
-                  <small>{info?.latest ? `${info.latest.title} · ${relative(info.latest.at)}` : t('Nothing yet')}</small>
-                </span>
-                <ChevronUp size={12} className="loop-nav-goto" aria-hidden />
-              </button>
-            )
-          })}
-        </div>
-      )}
+    <div className="loop-footprint-list" role="group" aria-label={t('Learning footprint')}>
+      {LOOP_TARGETS.map((target) => {
+        const Icon = target.icon
+        const info = byKind.get(target.kind)
+        const active = view === target.view
+        return (
+          <button
+            type="button"
+            key={target.kind}
+            className={`loop-nav-row ${active ? 'active' : ''}`}
+            onClick={() => onNavigate(target.view)}
+          >
+            <Icon size={16} />
+            <span className="loop-nav-row-body">
+              <strong>{t(target.label)}<b className="loop-nav-count">{info?.count ?? 0}</b></strong>
+              <small>{info?.latest ? `${info.latest.title} · ${relative(info.latest.at)}` : t('Nothing yet')}</small>
+            </span>
+            <ChevronUp size={12} className="loop-nav-goto" aria-hidden />
+          </button>
+        )
+      })}
     </div>
   )
 }

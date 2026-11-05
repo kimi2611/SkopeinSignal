@@ -3228,4 +3228,7 @@ export const zhCN: Record<string, string> = {
   "07C · The learning loop — four features, one memory": "07C · 学习闭环 —— 四个功能，一份记忆",
   "08A · Settings, repair & recovery": "08A · 设置、修复与恢复",
 
+  // — i18n-sync 2026-11-05: identity placeholders, translate below —
+  "See the whole loop in My Account.": "在「我的账户」里看整个循环。",
+  "My Account carries the Learning footprint: the four learning modules, each with its count and latest output, so the loop you closed this week is visible at a glance. It is a read-only summary — open a module to work in it.": "「我的账户」里放着学习足迹：四个学习模块各自显示数量与最新产出，这一周闭合的循环一眼可见。它是只读摘要——要动手就打开对应模块。",
 }
