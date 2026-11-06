@@ -350,7 +350,7 @@ export function StudySetup({ episode, show, session, onSave, onCancel }: StudySe
       <div className="study-setup-intro">
         <span className="section-index">{t('02 / RETURN & SETUP')}</span>
         <h2>{t(session ? 'Change audio or transcript' : 'Import the returned transcript')}</h2>
-        <p>{t('Start with audio alone, or add the file KimiClaw returned. VTT and SRT provide segment-level synchronization; TXT and Markdown support clickable words immediately, and you can set their timeline after import. Audio is never uploaded — the optional on-device transcriber below runs entirely in this browser.')}</p>
+        <p>{t('Start with audio alone, or add the file KimiClaw returned. VTT and SRT provide segment-level synchronization; TXT and Markdown support clickable words immediately, and you can set their timeline after import. Audio is never uploaded unless you choose a server or cloud channel — the optional on-device transcriber below runs entirely in this browser.')}</p>
       </div>
       <div className="study-setup-grid">
         <section aria-labelledby="audio-source-title">
@@ -449,7 +449,7 @@ export function StudySetup({ episode, show, session, onSave, onCancel }: StudySe
                   placeholder={t('Only needed for server transcription')}
                 />
               </label>
-              <p className="form-hint">{t('On-device transcription is meant for short clips (up to about 10 minutes) — it is private and free but much less accurate on long audio. The server path hears accents and names better and never keeps the file, but the audio is uploaded.')}</p>
+              <p className="form-hint">{t('On-device transcription works best on short clips — aim for ten minutes or less; the hard limit is three hours. It is private and free but much less accurate on long audio. The server path hears accents and names better and never keeps the file, but the audio is uploaded.')}</p>
               {asr && (
                 <div className="local-asr-progress" role="status">
                   <span>{asrStageLabel(t, asr)}{asr.detail ? ` · ${asr.detail}` : ''}</span>
