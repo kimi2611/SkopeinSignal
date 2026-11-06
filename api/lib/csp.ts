@@ -44,3 +44,11 @@ export const REPORT_ONLY_CSP = [
   // that actually arrives.
   "report-uri /api/csp-report",
 ].join("; ");
+
+/**
+ * Rehearsal switch. `CSP_ENFORCE=1` emits the exact same policy as the blocking
+ * header instead of the Report-Only one, so a throwaway container can be swept
+ * with enforcement actually on. Decided by config, not by a code edit, because
+ * the flip and the rollback have to be the same one-line act.
+ */
+export const CSP_ENFORCE = process.env.CSP_ENFORCE === "1";

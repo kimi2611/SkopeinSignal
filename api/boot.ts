@@ -14,7 +14,7 @@ import { localAuthRoutes } from "./auth-local";
 import { transcribeRoutes } from "./transcribe";
 import { Session } from "@contracts/constants";
 import { clientIpOf, sessionKeyOf, take } from "./lib/ratelimit";
-import { REPORT_ONLY_CSP } from "./lib/csp";
+import { CSP_ENFORCE, REPORT_ONLY_CSP } from "./lib/csp";
 import { cspRoutes } from "./csp";
 
 const app = new Hono<{ Bindings: HttpBindings }>();
@@ -88,7 +88,17 @@ app.use("*", async (c, next) => {
   }
   // Report-Only alongside the enforcing header: the browser runs both policies
   // and reports what the strict one would have blocked, without blocking it.
-  if (!c.res.headers.has("Content-Security-Policy-Report-Only")) {
+  //
+  // CSP_ENFORCE=1 turns the same policy into the blocking one. It exists so the
+  // switch can be rehearsed on a throwaway container — an enforce policy that was
+  // never exercised is a guess wearing a helmet. Production flips only after the
+  // sweep against the enforcing container comes back clean.
+  if (CSP_ENFORCE) {
+    if (!c.res.headers.has("Content-Security-Policy")) {
+      c.res.headers.set("Content-Security-Policy", REPORT_ONLY_CSP);
+    }
+    c.res.headers.delete("Content-Security-Policy-Report-Only");
+  } else if (!c.res.headers.has("Content-Security-Policy-Report-Only")) {
     c.res.headers.set("Content-Security-Policy-Report-Only", REPORT_ONLY_CSP);
   }
 });
