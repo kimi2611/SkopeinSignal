@@ -19,6 +19,12 @@
  *   - connect-src lists the BYOK providers the browser talks to directly. If the
  *     real traffic never leaves our own origin, day two of the report will show
  *     an empty list and the enforcing policy can drop them;
+ *   - media-src allows https: because playing an episode straight from its RSS
+ *     enclosure is a first-class path (audioMode: 'rss'), and those files live on
+ *     whatever CDN the publisher chose. Measured on 2026-11-06: the seeded
+ *     Acquired episode (pscrb.fm) was blocked the moment enforcement went live —
+ *     the player showed nothing, the element only said "no supported sources".
+ *     Media cannot execute, so the reach is the cost of the feature, not a hole;
  *   - object-src 'none', base-uri 'self', form-action 'self',
  *     frame-ancestors 'none' are already enforced by the blocking header, and are
  *     repeated here so the two policies do not drift.
@@ -29,7 +35,7 @@ export const REPORT_ONLY_CSP = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
-  "media-src 'self' data: blob:",
+  "media-src 'self' data: blob: https:",
   "connect-src 'self' https://api.deepseek.com https://api.siliconflow.cn https://dashscope.aliyuncs.com https://api.openai.com https://api.bibigpt.co https://www.kimi.com",
   "worker-src 'self' blob:",
   "child-src 'self' blob:",
