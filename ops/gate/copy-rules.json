@@ -1,0 +1,33 @@
+{
+  "_comment": "Copy truth gate. forbidden = claims that are false today (any occurrence, any locale). required = the honest wording that must be visible in that locale. Update this file whenever the copy intentionally changes; a failing gate is the reminder, not the enemy. requiredBundle = strings that must exist in the served JS (used for copy behind login, which the DOM pass cannot reach). forbidden entries are regular expressions.",
+  "forbidden": [
+    "lives only in your browser",
+    "只存在你的浏览器",
+    "nur in deinem Browser",
+    "billed to the site owner",
+    "费用由站长承担",
+    "the site AI by default",
+    "默认使用站点的 AI",
+    "site AI by default",
+    "Audio is never uploaded(?! unless)"
+  ],
+  "required": [
+    {
+      "locale": "en",
+      "phrase": "only your account can use it"
+    },
+    {
+      "locale": "zh-CN",
+      "phrase": "只有你的账号能用"
+    },
+    {
+      "locale": "de",
+      "phrase": "nur dein Konto kann ihn nutzen"
+    }
+  ],
+  "requiredBundle": [
+    "unless you choose a server or cloud channel",
+    "除非你主动选择服务端或云端通道",
+    "nur hochgeladen, wenn du einen Server- oder Cloud-Kanal"
+  ]
+}

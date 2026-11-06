@@ -411,7 +411,7 @@ export function StudySetup({ episode, show, session, onSave, onCancel }: StudySe
           {audioMode === 'local' && (audioFile || transcriptionJob) && (
             <div className="local-asr" data-testid="local-asr">
               <div className="local-asr-head"><Sparkles size={16} /><strong>{t('Free on-device transcription (experimental)')}</strong></div>
-              <p className="form-hint">{t('Runs entirely in this browser with a small open model (~40 MB, bundled with the site). The audio never leaves this device and no Kimi quota is used. English and German audio (auto-detected by default), up to 3 hours per file — long MP3/WAV episodes stream through a memory-safe decoder, so a full podcast episode fits; expect a rough draft to review, and long pieces can take a while on a tablet (recognition runs slower than real time there). Stereo files are auditioned on three channels (mix, left, right) and the cleanest is transcribed; a larger model is available below for difficult audio.')}</p>
+              <p className="form-hint">{t('Runs entirely in this browser with a small open model (~40 MB, served by this site and downloaded once on first use, then cached in the browser). The audio never leaves this device and no Kimi quota is used. English and German audio (auto-detected by default), up to 3 hours per file — long MP3/WAV episodes stream through a memory-safe decoder, so a full podcast episode fits; expect a rough draft to review, and long pieces can take a while on a tablet (recognition runs slower than real time there). Stereo files are auditioned on three channels (mix, left, right) and the cleanest is transcribed; a larger model is available below for difficult audio.')}</p>
               <div className="local-asr-controls">
                 <label className="local-asr-lang"><span className="field-label">{t('Audio language')}</span>
                   <select className="field" value={asrLang} disabled={!!asr} onChange={(event) => setAsrLang(event.target.value as AsrLanguage)}>
@@ -422,8 +422,8 @@ export function StudySetup({ episode, show, session, onSave, onCancel }: StudySe
                 </label>
                 <label className="local-asr-lang"><span className="field-label">{t('Recognition quality')}</span>
                   <select className="field" value={asrTier} disabled={!!asr} onChange={(event) => setAsrTier(event.target.value as AsrModelTier)}>
-                    <option value="tiny">{t('Standard — 40 MB model, bundled')}</option>
-                    <option value="base">{t('Higher — 80 MB model, bundled')}</option>
+                    <option value="tiny">{t('Standard — 40 MB model, downloaded once')}</option>
+                    <option value="base">{t('Higher — 80 MB model, downloaded once')}</option>
                   </select>
                 </label>
                 <button type="button" className="btn btn-secondary" disabled={!!asr || !audioFile} onClick={() => void runLocalTranscription()}>{asr ? t('Transcribing on device…') : markDefault(t('Transcribe on this device (free)'), 'device', readDefaultChannel(), ` · ${t('your default')}`)}</button>
