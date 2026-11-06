@@ -1,0 +1,22 @@
+[Unit]
+Description=SkopeinSignal Whisper sidecar (faster-whisper on the host, port 9000)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/skopein-whisper
+Environment=WHISPER_MODEL=/opt/skopein-whisper/models/faster-whisper-small
+Environment=WHISPER_THREADS=3
+Environment=WHISPER_PORT=9000
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/podcast-pilot/venv/bin/python3 /opt/skopein-whisper/sidecar.py
+Restart=always
+RestartSec=5
+# The model load takes a while; do not kill it while it is warming up.
+TimeoutStartSec=300
+StandardOutput=append:/var/log/skopein/sidecar.log
+StandardError=append:/var/log/skopein/sidecar.log
+
+[Install]
+WantedBy=multi-user.target
