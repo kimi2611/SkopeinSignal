@@ -37,3 +37,15 @@ Two rules learned while building the sink:
   chunk spool, and its sweeper deletes any entry older than 24h by mtime — the
   log would vanish exactly when it becomes interesting. It gets its own mount
   (`/var/lib/skopein/csp` → `/data/csp`).
+
+## source-gate.sh
+
+Called from `deploy-prod.sh` step 0.7. Refuses to deploy unless the tree is a git
+checkout, is clean, and HEAD equals `origin/<branch>`. The image gets
+`--label git.sha=<sha>`, so `docker inspect` answers "which commit is this?" —
+which is exactly the question nobody could answer about v74, built from an
+uncommitted tree and committed only after it was already serving.
+
+Rule that came out of that: **commit → push → build → deploy**, in that order.
+The gate exists so the order cannot be forgotten; `SKIP_SHA_GATE=1` is available
+and prints a warning that production will carry no SHA.
