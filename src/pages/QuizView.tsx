@@ -280,7 +280,7 @@ export function QuizView({ onNavigate }: { onNavigate: (view: ViewKey) => void }
         <section className="panel quiz-gate">
           <UserRound size={22} />
           <h2>{t('Sign in to use the voice quiz')}</h2>
-          <p>{t('Question generation and grading run on the active key — the site AI by default, your own DeepSeek key once you enable one. Signing in ties each call to your account and stores quiz history in your cloud workspace.')}</p>
+          <p>{t('Question generation and grading run on the DeepSeek key you add yourself under Settings → AI keys (your key, your bill). Signing in ties each call to your account and stores quiz history in your cloud workspace.')}</p>
           <button type="button" className="btn btn-primary" onClick={() => onNavigate('account')}>{t('Open My Account')}</button>
         </section>
       )}

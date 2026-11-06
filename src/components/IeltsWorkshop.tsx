@@ -249,7 +249,7 @@ export function IeltsWorkshop({ kind, onNavigate }: { kind: 'speaking' | 'writin
   }
 
   if (!authLoading && !isAuthenticated) {
-    return <section className="panel ielts-gate"><UserRound size={22} /><h2>{t('Sign in for IELTS practice')}</h2><p>{t('Paper generation and band feedback use the active key — the site AI by default, your own DeepSeek key once enabled. Your saved podcast material remains in your workspace.')}</p><button type="button" className="btn btn-primary" onClick={() => onNavigate('account')}>{t('Open My Account')}</button></section>
+    return <section className="panel ielts-gate"><UserRound size={22} /><h2>{t('Sign in for IELTS practice')}</h2><p>{t('Paper generation and band feedback use the DeepSeek key you add yourself under Settings → AI keys (your key, your bill). Your saved podcast material remains in your workspace.')}</p><button type="button" className="btn btn-primary" onClick={() => onNavigate('account')}>{t('Open My Account')}</button></section>
   }
 
   const canGenerate = !!episode && (source === 'saved' ? !!savedSummary : source === 'snipd' ? snipdText.trim().length >= 80 : excerpt.length >= 200)

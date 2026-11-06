@@ -168,7 +168,7 @@ export function SparksView({ onNavigate }: { onNavigate: (view: ViewKey) => void
         view="sparks"
         kicker={t('IDEA SPARKS / AI FEEDBACK')}
         title={t(moduleTitle(theme, 'sparks'))}
-        copy={t('Right after an episode, write or dictate the thought that surfaced. The atelier’s AI answers with an honest evaluation, what works, and concrete next steps. AI calls are billed to the active key — the site AI by default, your own DeepSeek key once you enable one under Settings → AI keys — so this module requires sign-in.')}
+        copy={t('Right after an episode, write or dictate the thought that surfaced. The atelier’s AI answers with an honest evaluation, what works, and concrete next steps. AI calls are billed to the DeepSeek key you add yourself under Settings → AI keys (your key, your bill) — so this module requires sign-in.')}
       />
 
       <div className="notes-mode-switch" role="tablist" aria-label={t('Spark capture mode')}><button type="button" role="tab" aria-selected={mode === 'write'} className={mode === 'write' ? 'active' : ''} onClick={() => setMode('write')}><Lightbulb size={16} />{t('Write or dictate')}</button><button type="button" role="tab" aria-selected={mode === 'pencil'} className={mode === 'pencil' ? 'active' : ''} onClick={() => setMode('pencil')}><PenLine size={16} />{t('Apple Pencil mode')}</button><button type="button" role="tab" aria-selected={mode === 'evolution'} className={mode === 'evolution' ? 'active' : ''} onClick={() => setMode('evolution')}><GitBranch size={16} />{t('Idea evolution')}</button><button type="button" role="tab" aria-selected={mode === 'resources'} className={mode === 'resources' ? 'active' : ''} onClick={() => setMode('resources')}><BookOpen size={16} />{t('Resources')}</button></div>
@@ -177,7 +177,7 @@ export function SparksView({ onNavigate }: { onNavigate: (view: ViewKey) => void
         <section className="panel sparks-gate">
           <UserRound size={22} />
           <h2>{t('Sign in to share sparks')}</h2>
-          <p>{t('Spark feedback runs on the active key — the site AI by default, your own DeepSeek key once you enable one. Signing in ties each call to your account and stores your sparks in your cloud workspace.')}</p>
+          <p>{t('Spark feedback runs on the DeepSeek key you add yourself under Settings → AI keys (your key, your bill). Signing in ties each call to your account and stores your sparks in your cloud workspace.')}</p>
           <button type="button" className="btn btn-primary" onClick={() => onNavigate('account')}>{t('Open My Account')}</button>
         </section>
       )}

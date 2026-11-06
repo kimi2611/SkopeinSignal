@@ -24,7 +24,7 @@ export function ByokPanel() {
   });
   const setEnabled = trpc.settings.byokSetEnabled.useMutation({
     onSuccess: (data) => {
-      toast.success(data.enabled ? t("Your own key is now active for AI calls.") : t("Switched back to the site-provided AI (if available)."));
+      toast.success(data.enabled ? t("Your own key is now active for AI calls.") : t("Switched back to the site-provided AI (site owner account only)."));
       void status.refetch();
     },
     onError: (e) => toast.error(t(e.message)),
@@ -53,7 +53,7 @@ export function ByokPanel() {
   const s = status.data;
   return (
     <section className="settings-section">
-      <div className="settings-heading"><span>07</span><div><h2>{t("AI keys (bring your own)")}</h2><p>{t("Use your own DeepSeek key for AI features. The key is stored encrypted on the server and never shown again.")}</p></div></div>
+      <div className="settings-heading"><span>07</span><div><h2>{t("AI keys (bring your own)")}</h2><p>{t("Use your own DeepSeek key for AI features. The key is stored encrypted on the server under your account, only your account can use it, and it is never shown again.")}</p></div></div>
 
       {!s?.ready && <p className="form-error" role="alert">{t("BYOK is not available on this deployment (missing server secret).")}</p>}
 
@@ -61,7 +61,7 @@ export function ByokPanel() {
         <>
           <p className="form-hint"><KeyRound size={14} /> {t("Saved key: {tail}", { tail: s.keyTail ?? "••••" })}</p>
           <label className="switch-row">
-            <span><strong>{t("Use my own key for AI calls")}</strong><small>{t("When off, the site-provided AI is used if available.")}</small></span>
+            <span><strong>{t("Use my own key for AI calls")}</strong><small>{t("When off, AI calls fall back to the site's own key, which only the site owner's account can use — every other account needs its own.")}</small></span>
             <input type="checkbox" role="switch" checked={s.enabled} disabled={!s.ready || setEnabled.isPending} onChange={(e) => setEnabled.mutate({ provider: "deepseek", enabled: e.target.checked })} />
           </label>
           <div className="backup-actions">
