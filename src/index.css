@@ -388,6 +388,7 @@
   .danger-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-top: 14px; padding: 4px 0; border: 0; background: transparent; color: var(--error-warm); font-size: 12px; }
   .danger-link:hover { text-decoration: underline; text-underline-offset: 4px; }
   .install-steps { margin: 0; padding-left: 22px; color: var(--text-secondary); font-size: 13px; line-height: 2; }
+  .install-steps .btn { max-width: 100%; white-space: normal; text-align: left; overflow-wrap: anywhere; }
   .feed-status-section { margin-top: 44px; }
   .feed-status-list { border-top: 1px solid var(--divider); }
   .feed-status-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 12px 0; border-bottom: 1px solid var(--divider); }
