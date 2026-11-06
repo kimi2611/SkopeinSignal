@@ -58,10 +58,17 @@ export function CardsView() {
   const progress = useMemo(() => new Map(state.cardProgress.map((card) => [card.vocabularyId, card])), [state.cardProgress])
   const families = useMemo(() => familyByEntry(state.vocabulary), [state.vocabulary])
   const familyGroupCount = useMemo(() => new Set([...families.values()].map((family) => family.key)).size, [families])
-  const [currentId, setCurrentId] = useState<string | null>(() => orderedCards(state.vocabulary, new Map(), { language: 'all', episodeId: 'all', status: 'all' })[0]?.id ?? null)
+  // currentId used to be seeded once, from the vocabulary as it existed on the
+  // first render — which is empty while the workspace is still loading. Import
+  // four words afterwards and currentId stayed null forever, so the review desk
+  // opened on "this round is complete · Review this deck again" and the user had
+  // to click through a completion panel to reach cards they had never seen. The
+  // empty-round case now has its own flag instead of borrowing null.
+  const [currentId, setCurrentId] = useState<string | null>(null)
+  const [roundDone, setRoundDone] = useState(false)
   const fullDeck = orderedCards(state.vocabulary, progress, filter)
   const deck = representativesOnly ? collapseToFamilyRepresentatives(fullDeck, families) : fullDeck
-  const current = currentId === null ? undefined : deck.find((entry) => entry.id === currentId) ?? deck[0]
+  const current = roundDone ? undefined : (deck.find((entry) => entry.id === currentId) ?? deck[0])
   const episodeById = useMemo(() => new Map(state.episodes.map((episode) => [episode.id, episode])), [state.episodes])
   const showById = useMemo(() => new Map(state.shows.map((show) => [show.id, show])), [state.shows])
   const newCount = state.vocabulary.filter((entry) => isNew(progress.get(entry.id))).length
@@ -74,10 +81,11 @@ export function CardsView() {
     const next = { ...filter, ...patch }
     setFilter(next)
     setCurrentId(orderedCards(state.vocabulary, progress, next)[0]?.id ?? null)
+    setRoundDone(false)
     setRevealed(false)
   }
 
-  const chooseCard = (id: string) => { setCurrentId(id); setRevealed(false) }
+  const chooseCard = (id: string) => { setCurrentId(id); setRoundDone(false); setRevealed(false) }
 
   const grade = (value: ReviewGrade) => {
     if (!current) return
@@ -87,11 +95,14 @@ export function CardsView() {
     nextProgress.set(current.id, reviewed)
     const next = orderedCards(state.vocabulary, nextProgress, filter).find((entry) => entry.id !== current.id && isDue(nextProgress.get(entry.id)))
       ?? orderedCards(state.vocabulary, nextProgress, filter).find((entry) => entry.id !== current.id)
+    // null here means "nothing left in this round", which is a real end state —
+    // mark it explicitly so an empty deck does not get confused with it.
     setCurrentId(next?.id ?? null)
+    setRoundDone(!next)
     setRevealed(false)
   }
 
-  const restart = () => { setCurrentId(deck[0]?.id ?? null); setRevealed(false) }
+  const restart = () => { setCurrentId(deck[0]?.id ?? null); setRoundDone(false); setRevealed(false) }
 
   return (
     <div className="page-wrap cards-page">

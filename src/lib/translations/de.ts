@@ -1916,6 +1916,7 @@ export const de: Record<string, string> = {
   "Choose an English or German episode with a transcript. AI quotes a longer passage and asks you to interpret its reasoning in a developed spoken paragraph. This is the separate long-form exercise, not the short-answer quiz.": "Wähle eine englische oder deutsche Episode mit Transkript. Die KI zitiert eine längere Passage und bittet dich, ihre Argumentation in einem ausführlichen gesprochenen Absatz zu deuten. Dies ist die eigenständige Langformübung, nicht der Kurzantworttest.",
   "Short spoken answers": "Kurze gesprochene Antworten",
   "AI long-form questions": "Ausführliche KI-Fragen",
+  "Pick an episode above to enable question generation — the button stays disabled until there is a transcript to work from.": "Wähle oben eine Folge aus, dann wird die Fragengenerierung freigeschaltet — ohne Transkript bleibt die Schaltfläche gesperrt.",
   "Generate short-answer questions": "Kurzantwortfragen erstellen",
   "Generate long-form questions": "Ausführliche Fragen erstellen",
   "Short-answer questions use only the episode transcript excerpt and call for one or two spoken sentences. The excerpt is sent to the AI behind the active key; generation is never auto-retried.": "Kurzantwort-Fragen nutzen nur den Transkriptauszug der Episode und verlangen ein bis zwei gesprochene Sätze. Der Auszug wird an die KI hinter dem aktiven Schlüssel gesendet; die Generierung wird nie automatisch wiederholt.",

@@ -1914,6 +1914,7 @@ export const zhCN: Record<string, string> = {
   "Choose an English or German episode with a transcript. AI quotes a longer passage and asks you to interpret its reasoning in a developed spoken paragraph. This is the separate long-form exercise, not the short-answer quiz.": "选择带有文稿的英语或德语单集。AI 引用较长原文，要求你用完整口语段落阐释其中推理。这是独立的长段问话练习，不是短篇回答测验。",
   "Short spoken answers": "短篇口语回答",
   "AI long-form questions": "AI 长段问话",
+  "Pick an episode above to enable question generation — the button stays disabled until there is a transcript to work from.": "请先在上方选择一个单集，题目生成才会启用——没有转写文本可依据时，按钮会一直保持禁用。",
   "Generate short-answer questions": "生成短篇回答题",
   "Generate long-form questions": "生成长段问话题",
   "Short-answer questions use only the episode transcript excerpt and call for one or two spoken sentences. The excerpt is sent to the AI behind the active key; generation is never auto-retried.": "简答题只使用单集文字稿片段，要求用一两句口头作答。该片段会发送给当前生效的那把 key 背后的 AI；生成绝不自动重试。",

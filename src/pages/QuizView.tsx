@@ -328,6 +328,7 @@ export function QuizView({ onNavigate }: { onNavigate: (view: ViewKey) => void }
                 })}
               </ul>
               <div className="quiz-actions">
+                {!selected && <p className="quiz-disabled-hint">{t('Pick an episode above to enable question generation — the button stays disabled until there is a transcript to work from.')}</p>}
                 <button type="button" className="btn btn-primary" disabled={!selected || generateMutation.isPending} onClick={() => void generate()}>
                   {generateMutation.isPending ? <><Loader2 size={16} className="spin" />{t('Generating questions…')}</> : practiceMode === 'short' ? <><Mic size={16} />{t('Generate short-answer questions')}</> : <><MessageSquareText size={16} />{t('Generate long-form questions')}</>}
                 </button>

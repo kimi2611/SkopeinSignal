@@ -93,7 +93,25 @@ export function serveStaticFiles(app: App) {
   // POST/TRACE as well, which made the site look "all 200" to every scanner and
   // blurred real 404s in monitoring. Anything outside this set is now a 404 and
   // any method other than GET/HEAD is a 405.
-  const SHELL_ROUTES = new Set(["/", "/index.html", "/whisper-lab", "/whisper-lab/"]);
+  //
+  // /login is a real react-router route (see App.tsx: <Route path="/login">), and
+  // it is the one page a person types by hand or pastes into a chat. Leaving it
+  // out meant a live login page answered HTTP 404 with a bare "does not exist"
+  // body — the page worked, the status code lied, and every link preview showed
+  // 404. SPA routes the client router owns belong here.
+  const SHELL_ROUTES = new Set(["/", "/index.html", "/whisper-lab", "/whisper-lab/", "/login", "/login/"]);
+
+  // /favicon.ico: the page only declares a 192px PNG icon, so browsers still
+  // probe the conventional path and log a 404 on every visit. Serve the icon we
+  // already ship instead of adding a second copy of the artwork.
+  app.get("/favicon.ico", (c) => {
+    const iconPath = path.resolve(distPath, "icons/icon-192-v52.png");
+    if (!fs.existsSync(iconPath)) return c.body(null, 204);
+    return c.body(fs.readFileSync(iconPath) as unknown as ArrayBuffer, 200, {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=86400",
+    });
+  });
 
   app.notFound((c) => {
     if (c.req.method !== "GET" && c.req.method !== "HEAD") {
