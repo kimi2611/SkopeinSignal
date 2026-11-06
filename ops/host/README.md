@@ -49,3 +49,17 @@ uncommitted tree and committed only after it was already serving.
 Rule that came out of that: **commit → push → build → deploy**, in that order.
 The gate exists so the order cannot be forgotten; `SKIP_SHA_GATE=1` is available
 and prints a warning that production will carry no SHA.
+
+## csp-mode.sh — 强制/观察 一件事一条命令
+
+```
+csp-mode.sh                 # 现在是什么模式、线上返回哪条头
+csp-mode.sh enforce         # 切成强制（全量策略挡东西）
+csp-mode.sh report-only     # 切回只观察
+```
+
+- 翻转 = 用同一镜像重建容器，只差一个 `CSP_ENFORCE=1`；镜像、代码、提交都不变
+- 先在一份临时容器里演练（不带公网端口）→ 健康才换线上；不健康则一个字节都不动
+- 实测往返 16 秒，公网 0.3s 采样只有 2 个非 200（<1 秒），最后一次翻回 enforce 后 landing/week/guide/settings 四页 0 console 错
+- ⚠️ 容器名不能改：tailscale funnel 指向 `http://skopein-signal-v78:3000`，改名字 = 502
+- ⚠️ 第一版脚本先停线上再起新的，`-p` 拼错导致 3 分钟 502。现在顺序是"演练通过才动线上"，别再改回去
