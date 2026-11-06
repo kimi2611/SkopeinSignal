@@ -87,17 +87,33 @@ export function serveStaticFiles(app: App) {
 
   app.use("*", serveStatic({ root: "./dist/public" }));
 
+  // Only these paths are the SPA shell. The client router is hash-based
+  // (#/settings, #/quiz), so every real page lives at "/" — the previous
+  // catch-all answered 200 + index.html for ANY extensionless path and for
+  // POST/TRACE as well, which made the site look "all 200" to every scanner and
+  // blurred real 404s in monitoring. Anything outside this set is now a 404 and
+  // any method other than GET/HEAD is a 405.
+  const SHELL_ROUTES = new Set(["/", "/index.html", "/whisper-lab", "/whisper-lab/"]);
+
   app.notFound((c) => {
-    const accept = c.req.header("accept") ?? "";
-    // Deep links (/whisper-lab, /login) must survive clients that don't send a
-    // browser Accept header: link previewers, the funnel's own health checks,
-    // and anything that defaults to */*. A path with no file extension is a
-    // route, not an asset — serve the shell and let the router decide. Real
-    // missing files keep the JSON 404 so a broken asset stays diagnosable.
-    const looksLikeRoute = !/\.[a-z0-9]+$/i.test(c.req.path);
-    if (!accept.includes("text/html") && !looksLikeRoute) {
-      return c.json({ error: "Not Found" }, 404);
+    if (c.req.method !== "GET" && c.req.method !== "HEAD") {
+      return c.json({ error: "Method Not Allowed" }, 405, { Allow: "GET, HEAD" });
     }
+    const accept = c.req.header("accept") ?? "";
+    const wantsHtml = accept.includes("text/html");
+    // Deep links that are real server routes keep working for clients that send
+    // no Accept header: link previewers, funnel health checks, curl.
+    if (!SHELL_ROUTES.has(c.req.path)) {
+      if (!wantsHtml) return c.json({ error: "Not Found" }, 404);
+      return c.html(
+        "<!doctype html><meta charset=\"utf-8\"><title>Not found</title>" +
+          "<p>This page does not exist. <a href=\"/\">Back to SkopeinSignal</a></p>",
+        404,
+      );
+    }
+    // "/" always answers with the shell, Accept header or not: deploy health
+    // checks and uptime probes use plain curl, and a 404 there would look like
+    // an outage.
     const indexPath = path.resolve(distPath, "index.html");
     const content = fs.readFileSync(indexPath, "utf-8");
     return c.html(content);

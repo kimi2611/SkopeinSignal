@@ -497,6 +497,9 @@ transcribeRoutes.post("/upload/:id/complete", async (c) => {
 // Channels, cloud, models, jobs
 // ---------------------------------------------------------------------------
 
+/** Last /health probe result for the host sidecar (see /channels below). */
+const sidecarProbe = { at: 0, up: false, model: null as string | null };
+
 /**
  * Channel roster for the settings page: what exists, what is ready, and what it
  * costs in RAM. The cloud channel is BYOK on purpose — a browser-side key is
@@ -504,9 +507,43 @@ transcribeRoutes.post("/upload/:id/complete", async (c) => {
  */
 transcribeRoutes.get("/channels", async (c) => {
   const sidecar = process.env.WHISPER_SIDECAR_URL?.trim();
+  // A configured URL is not a running service. The settings page used to show
+  // "Server: available" purely because the env var was set, so a dead sidecar
+  // still looked usable and only failed after the file was uploaded. Probe
+  // /health instead, with a short timeout, and cache for 10s so page loads do
+  // not hammer it.
+  let sidecarUp = false;
+  let sidecarModel: string | null = null;
+  if (sidecar) {
+    const now = Date.now();
+    if (now - sidecarProbe.at > 10_000) {
+      sidecarProbe.at = now;
+      try {
+        const res = await fetch(`${sidecar.replace(/\/$/, "")}/health`, {
+          signal: AbortSignal.timeout(1500),
+        });
+        const body = (await res.json().catch(() => null)) as { ok?: boolean; model?: string } | null;
+        sidecarProbe.up = Boolean(res.ok && body?.ok);
+        sidecarProbe.model = body?.model ?? null;
+      } catch {
+        sidecarProbe.up = false;
+        sidecarProbe.model = null;
+      }
+    }
+    sidecarUp = sidecarProbe.up;
+    sidecarModel = sidecarProbe.model;
+  }
   return c.json({
     device: { available: true, detail: "runs in this browser, private, short clips" },
-    server: { available: Boolean(sidecar), detail: sidecar ? "faster-whisper on the host" : "WHISPER_SIDECAR_URL unset" },
+    server: {
+      available: sidecarUp,
+      model: sidecarModel,
+      detail: !sidecar
+        ? "WHISPER_SIDECAR_URL unset"
+        : sidecarUp
+          ? `faster-whisper on the host (${sidecarModel ?? "loaded"})`
+          : "the host sidecar is not answering /health — start skopein-sidecar",
+    },
     // The cloud channel is BYOK from the browser now, so it is "available" in
     // the sense that the route exists. Which provider can actually run depends
     // on a key the server has never seen — /cloud/providers answers that.

@@ -53,6 +53,37 @@ app.use("*", async (c, next) => {
   });
 });
 
+/**
+ * Baseline security headers.
+ *
+ * Until now the app sent none: no HSTS, no nosniff, no referrer policy, and no
+ * framing rule — so any third-party page could frame the site and clickjack it,
+ * and a future XSS would have had nothing to trip over. These five cost nothing
+ * at runtime and do not restrict the app's own scripts:
+ *   - frame-ancestors 'none' is the modern equivalent of X-Frame-Options: DENY,
+ *     expressed in CSP instead so a browser honours the stricter of the two;
+ *   - the CSP here deliberately says nothing about script-src/style-src. The
+ *     ONNX bench needs 'wasm-unsafe-eval' and blob: workers, and a half-tuned
+ *     script policy is worse than none — a full CSP is a separate change that
+ *     must ship Report-Only first.
+ * HSTS is set on every response, HTTP included: browsers ignore it on plain
+ * HTTP by design, and the funnel only speaks HTTPS anyway.
+ */
+const SECURITY_HEADERS: Record<string, string> = {
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "X-Frame-Options": "DENY",
+  "Content-Security-Policy": "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'",
+};
+app.use("*", async (c, next) => {
+  await next();
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
+    // Do not clobber a route that already decided (whisper-lab sets COOP/COEP).
+    if (!c.res.headers.has(name)) c.res.headers.set(name, value);
+  }
+});
+
 // Scoped to the tRPC route, NOT global: on the dev server (@hono/vite-dev-server)
 // a global bodyLimit breaks bodyless requests. Hono's bodyLimit reads any truthy
 // request stream to the end and then rebuilds the Request with `new Request(raw,
