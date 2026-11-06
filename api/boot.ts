@@ -94,9 +94,13 @@ app.use("*", async (c, next) => {
   // never exercised is a guess wearing a helmet. Production flips only after the
   // sweep against the enforcing container comes back clean.
   if (CSP_ENFORCE) {
-    if (!c.res.headers.has("Content-Security-Policy")) {
-      c.res.headers.set("Content-Security-Policy", REPORT_ONLY_CSP);
-    }
+    // Overwrite, do not "set if absent". The baseline header above already put a
+    // narrow CSP in place (frame-ancestors/base-uri/form-action/object-src);
+    // respecting that guard here would have shipped an "enforced" policy that was
+    // still the narrow one. Caught by rehearsing on a throwaway container before
+    // touching production — which is the whole reason this switch exists. The
+    // full policy subsumes the narrow one, so replacing it loses nothing.
+    c.res.headers.set("Content-Security-Policy", REPORT_ONLY_CSP);
     c.res.headers.delete("Content-Security-Policy-Report-Only");
   } else if (!c.res.headers.has("Content-Security-Policy-Report-Only")) {
     c.res.headers.set("Content-Security-Policy-Report-Only", REPORT_ONLY_CSP);
