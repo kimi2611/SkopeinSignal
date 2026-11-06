@@ -18,3 +18,22 @@ and both were learned by breaking something:
   the caller's own command line whenever those words appear in a heredoc or an
   editor buffer, so the guard skipped itself. The deploy check uses `flock -n`
   against the real deploy lock instead of matching a script name.
+
+## csp-report.sh
+
+`37 9 * * * /opt/skopein-whisper/csp-report.sh >/dev/null 2>&1`
+
+Digests `/var/lib/skopein/csp/csp-*.jsonl` into one page at
+`/var/log/skopein/csp-summary-YYYYMMDD.txt`. Report-Only blocks nothing, so the
+data only matters if someone reads it; a JSONL dump does not get read.
+
+Two rules learned while building the sink:
+
+- **`report-to` silently swallowed every report.** With both `report-uri` and
+  `report-to` present, Chrome switched to the Reporting API and delivered
+  nothing; a bare `report-uri` test page reported within the same second. The
+  policy now carries `report-uri` only.
+- **The spool must not live under `/data/whisper-uploads`.** That tree is the
+  chunk spool, and its sweeper deletes any entry older than 24h by mtime — the
+  log would vanish exactly when it becomes interesting. It gets its own mount
+  (`/var/lib/skopein/csp` → `/data/csp`).

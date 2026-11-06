@@ -14,6 +14,8 @@ import { localAuthRoutes } from "./auth-local";
 import { transcribeRoutes } from "./transcribe";
 import { Session } from "@contracts/constants";
 import { clientIpOf, sessionKeyOf, take } from "./lib/ratelimit";
+import { REPORT_ONLY_CSP } from "./lib/csp";
+import { cspRoutes } from "./csp";
 
 const app = new Hono<{ Bindings: HttpBindings }>();
 
@@ -84,6 +86,11 @@ app.use("*", async (c, next) => {
     // Do not clobber a route that already decided (whisper-lab sets COOP/COEP).
     if (!c.res.headers.has(name)) c.res.headers.set(name, value);
   }
+  // Report-Only alongside the enforcing header: the browser runs both policies
+  // and reports what the strict one would have blocked, without blocking it.
+  if (!c.res.headers.has("Content-Security-Policy-Report-Only")) {
+    c.res.headers.set("Content-Security-Policy-Report-Only", REPORT_ONLY_CSP);
+  }
 });
 
 // Scoped to the tRPC route, NOT global: on the dev server (@hono/vite-dev-server)
@@ -131,6 +138,8 @@ app.route("/api/oauth/config", oauthConfigRoutes);
 app.route("/api/auth/local", localAuthRoutes);
 // Whisper Lab 服务端对照组（staging 测试网用，未配置 sidecar 时返回 404）。
 app.route("/api/transcribe", transcribeRoutes);
+// CSP 违规上报落盘（Report-Only 期间用，零鉴权：浏览器不带凭据）
+app.route("/api/csp-report", cspRoutes);
 
 /**
  * Cross-origin isolation for the Whisper Lab document only.
