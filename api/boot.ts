@@ -12,6 +12,8 @@ import { REQUEST_ID_HEADER, runWithRequestId } from "./lib/requestcontext";
 import { oauthConfigRoutes } from "./routes/oauthConfig";
 import { localAuthRoutes } from "./auth-local";
 import { transcribeRoutes } from "./transcribe";
+import { Session } from "@contracts/constants";
+import { clientIpOf, sessionKeyOf, take } from "./lib/ratelimit";
 
 const app = new Hono<{ Bindings: HttpBindings }>();
 
@@ -91,6 +93,37 @@ app.use("*", async (c, next) => {
 // rebuild throw `TypeError: Cannot read private member #state ...`, so every
 // bodyless request (DELETE/PATCH on the app's own REST routes) 500s at dispatch.
 // /api/log keeps its own 64KB caps in lib/clientlog.ts, so it needs no middleware.
+// Rate limits. Measured before this existed: 15 hits on auth.me, all 200, no
+// ceiling anywhere in the tRPC surface. Two buckets, different keys on purpose:
+//   - every tRPC call counts against the caller's IP (120/min);
+//   - the AI procedures get a second, tighter bucket keyed by the session, so a
+//     shared address (a household, a NAT'd office) cannot exhaust AI by having
+//     one person hammer it, and one caller cannot dodge the AI ceiling by
+//     rotating IPs.
+// 429 carries Retry-After so clients back off instead of retrying blind.
+const AI_PROCEDURES = ["quiz.", "cards.", "sparks.", "ielts.", "insights.", "understanding.", "research.", "deck.", "snipd."];
+app.use("/api/trpc/*", async (c, next) => {
+  const ip = clientIpOf((name) => c.req.header(name));
+  const perIp = take(`trpc:${ip}`, 120, 60_000);
+  if (!perIp.ok) {
+    return c.json({ error: "Too many requests. Slow down and retry.", code: "rate-limited" }, 429, {
+      "Retry-After": String(perIp.retryAfter),
+    });
+  }
+  const path = c.req.path.toLowerCase();
+  if (AI_PROCEDURES.some((prefix) => path.includes(prefix))) {
+    const key = await sessionKeyOf(c.req.header("cookie")?.match(new RegExp(`${Session.cookieName}=([^;]+)`))?.[1]);
+    const perAccount = take(`ai:${key}`, 20, 60_000);
+    if (!perAccount.ok) {
+      log.warn("ai rate limited", { ip, retryAfter: perAccount.retryAfter });
+      return c.json({ error: "Too many AI requests for now. Try again in a minute.", code: "ai-rate-limited" }, 429, {
+        "Retry-After": String(perAccount.retryAfter),
+      });
+    }
+  }
+  await next();
+});
+
 app.use("/api/trpc/*", bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.get(Paths.oauthCallback, createOAuthCallbackHandler());
 app.route("/api/oauth/config", oauthConfigRoutes);

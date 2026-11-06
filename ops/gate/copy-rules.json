@@ -9,7 +9,8 @@
     "the site AI by default",
     "默认使用站点的 AI",
     "site AI by default",
-    "Audio is never uploaded(?! unless)"
+    "Audio is never uploaded(?! unless)",
+    "\"code-path\""
   ],
   "required": [
     {

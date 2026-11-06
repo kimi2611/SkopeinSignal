@@ -5,10 +5,15 @@ import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import { inspectAttr } from 'kimi-plugin-inspect-react'
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [
     devServer({ entry: "api/boot.ts", exclude: [/^\/(?!api\/).*$/] }),
-    inspectAttr(), react()],
+    // inspectAttr stamps every JSX element with code-path="src/..:line:col" for
+    // the builder's element picker. Useful while designing, but it shipped to
+    // production: 4146 attributes naming internal files and line numbers in the
+    // public bundle. Serve-only now.
+    ...(command === "serve" ? [inspectAttr()] : []),
+    react()],
   server: { port: 3000 },
   resolve: {
     alias: {
@@ -22,4 +27,4 @@ export default defineConfig({
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
   },
-})
+}))
