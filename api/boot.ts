@@ -8,6 +8,8 @@ import { createOAuthCallbackHandler } from "./kimi/auth";
 import { Paths } from "@contracts/constants";
 import { log } from "./lib/logger";
 import { handleClientLog } from "./lib/clientlog";
+import { handleCspReport } from "./lib/cspReport";
+import { installCspReportOnly } from "./lib/cspReportOnly";
 import { REQUEST_ID_HEADER, runWithRequestId } from "./lib/requestcontext";
 import { oauthConfigRoutes } from "./routes/oauthConfig";
 import { localAuthRoutes } from "./auth-local";
@@ -27,7 +29,10 @@ const app = new Hono<{ Bindings: HttpBindings }>();
 // POSTed batch would be self-amplifying noise in the very file it writes.
 app.use("*", async (c, next) => {
   const requestId = crypto.randomUUID();
-  if (c.req.path === "/api/log") {
+  // /api/csp-report is skipped for the same reason: a policy-violating page can
+  // emit reports faster than a human reads access lines, and each one would be
+  // its own line in the log it keeps filling.
+  if (c.req.path === "/api/log" || c.req.path === "/api/csp-report") {
     await next();
     return;
   }
@@ -84,6 +89,10 @@ app.use("*", async (c, next) => {
   }
 });
 
+// The full CSP, non-blocking: see lib/cspReportOnly.ts for why this is a second
+// header rather than an edit to the table above.
+installCspReportOnly(app);
+
 // Scoped to the tRPC route, NOT global: on the dev server (@hono/vite-dev-server)
 // a global bodyLimit breaks bodyless requests. Hono's bodyLimit reads any truthy
 // request stream to the end and then rebuilds the Request with `new Request(raw,
@@ -132,6 +141,14 @@ app.post(
   "/api/log",
   bodyLimit({ maxSize: 64 * 1024, onError: (c) => c.body(null, 413) }),
   handleClientLog,
+);
+// CSP violation sink (see lib/cspReport.ts). Registered before the catch-all
+// for the same reason /api/log is. 16KB is generous: a real csp-report is a few
+// hundred bytes, and Chrome batches at most a handful per POST.
+app.post(
+  "/api/csp-report",
+  bodyLimit({ maxSize: 16 * 1024, onError: (c) => c.body(null, 413) }),
+  handleCspReport,
 );
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
 
