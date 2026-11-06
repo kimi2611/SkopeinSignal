@@ -3,6 +3,19 @@ Description=SkopeinSignal Whisper sidecar (faster-whisper on the host, port 9000
 After=network-online.target
 Wants=network-online.target
 
+# Bounded restarts. The systemd defaults (5 restarts / 10 s) are unreachable here
+# because RestartSec=5 means five restarts take 25 s, so a real crash loop would
+# restart forever with no failed state and no evidence in journalctl. Six in ten
+# minutes is a loop, not a blip. Only restarts are counted, never slow starts, so
+# a cold model load cannot trip this.
+#
+# Consequence: once tripped the unit STAYS failed and needs
+# `systemctl reset-failed skopein-sidecar && systemctl start skopein-sidecar`.
+# The host-side sidecar-watch cron is what tells a human; the two are a pair.
+StartLimitIntervalSec=600
+StartLimitBurst=6
+StartLimitAction=none
+
 [Service]
 Type=simple
 WorkingDirectory=/opt/skopein-whisper

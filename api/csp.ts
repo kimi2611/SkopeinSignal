@@ -20,6 +20,7 @@ import { Hono } from "hono";
 import { appendFile, mkdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { log } from "./lib/logger";
+import { clientIpOf, take } from "./lib/ratelimit";
 
 // NOT under /data/whisper-uploads: that tree is the chunk spool, and its sweeper
 // deletes any entry older than 24h (rm -rf, by mtime). The violation log would
@@ -53,6 +54,15 @@ function shapeOf(raw: Record<string, unknown>): Violation {
 }
 
 cspRoutes.post("/", async (c) => {
+  // Unauthenticated by necessity (browsers send reports without credentials), so
+  // it is also the one route a stranger can flood. The cap is on the *response*,
+  // not the request: over the limit we still answer 204 and drop the report.
+  // A 429 here would be indistinguishable from a broken sink in the logs, and
+  // browsers do not retry failed reports anyway — so dropping is honest, and the
+  // per-day file cap stays as the backstop.
+  if (!take(`csp:${clientIpOf((name) => c.req.header(name))}`, 120, 60_000).ok) {
+    return c.body(null, 204);
+  }
   const declared = Number(c.req.header("content-length") ?? "0");
   if (declared > MAX_BODY) return c.body(null, 204);
   const text = await c.req.text();
