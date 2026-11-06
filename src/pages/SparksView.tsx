@@ -130,7 +130,8 @@ export function SparksView({ onNavigate }: { onNavigate: (view: ViewKey) => void
   }
 
   const errorCopy: Record<string, string> = {
-    AI_QUOTA_EXHAUSTED: t('The site owner’s AI quota is exhausted, so spark feedback is unavailable until the quota is topped up in Kimi.'),
+    AI_QUOTA_EXHAUSTED: t('The active key’s AI quota is exhausted, so spark feedback is unavailable until that key is topped up.'),
+    AI_BYOK_REQUIRED: t('AI needs a channel key: add your own DeepSeek key under Settings → AI keys, then retry.'),
     AI_CONTENT_REJECTED: t('The AI declined this content. Try rephrasing the idea in your own words.'),
     AI_MISCONFIGURED: t('AI is not configured for this site yet. Publish (or reopen) the site once, then retry.'),
     AI_TRANSIENT: t('The AI service is busy right now. Nothing was retried automatically — send the spark again when you are ready.'),
@@ -167,7 +168,7 @@ export function SparksView({ onNavigate }: { onNavigate: (view: ViewKey) => void
         view="sparks"
         kicker={t('IDEA SPARKS / AI FEEDBACK')}
         title={t(moduleTitle(theme, 'sparks'))}
-        copy={t('Right after an episode, write or dictate the thought that surfaced. The atelier’s AI answers with an honest evaluation, what works, and concrete next steps. AI calls are billed to the site owner, so this module requires sign-in.')}
+        copy={t('Right after an episode, write or dictate the thought that surfaced. The atelier’s AI answers with an honest evaluation, what works, and concrete next steps. AI calls are billed to the active key — the site AI by default, your own DeepSeek key once you enable one under Settings → AI keys — so this module requires sign-in.')}
       />
 
       <div className="notes-mode-switch" role="tablist" aria-label={t('Spark capture mode')}><button type="button" role="tab" aria-selected={mode === 'write'} className={mode === 'write' ? 'active' : ''} onClick={() => setMode('write')}><Lightbulb size={16} />{t('Write or dictate')}</button><button type="button" role="tab" aria-selected={mode === 'pencil'} className={mode === 'pencil' ? 'active' : ''} onClick={() => setMode('pencil')}><PenLine size={16} />{t('Apple Pencil mode')}</button><button type="button" role="tab" aria-selected={mode === 'evolution'} className={mode === 'evolution' ? 'active' : ''} onClick={() => setMode('evolution')}><GitBranch size={16} />{t('Idea evolution')}</button><button type="button" role="tab" aria-selected={mode === 'resources'} className={mode === 'resources' ? 'active' : ''} onClick={() => setMode('resources')}><BookOpen size={16} />{t('Resources')}</button></div>
@@ -176,7 +177,7 @@ export function SparksView({ onNavigate }: { onNavigate: (view: ViewKey) => void
         <section className="panel sparks-gate">
           <UserRound size={22} />
           <h2>{t('Sign in to share sparks')}</h2>
-          <p>{t('Spark feedback runs on the site’s AI quota. Signing in keeps that quota under the owner’s control and stores your sparks in your cloud workspace.')}</p>
+          <p>{t('Spark feedback runs on the active key — the site AI by default, your own DeepSeek key once you enable one. Signing in ties each call to your account and stores your sparks in your cloud workspace.')}</p>
           <button type="button" className="btn btn-primary" onClick={() => onNavigate('account')}>{t('Open My Account')}</button>
         </section>
       )}
@@ -233,7 +234,7 @@ export function SparksView({ onNavigate }: { onNavigate: (view: ViewKey) => void
                 {respondMutation.isPending ? <><Loader2 size={16} className="spin" />{t('Thinking…')}</> : <><Send size={15} />{t('Share for feedback')}</>}
               </button>
             </div>
-            <p className="quiz-fineprint">{t('Your spark — and, when an episode is linked, a transcript excerpt — is sent to the site’s AI only to write this feedback. Nothing is retried automatically.')}</p>
+            <p className="quiz-fineprint">{t('Your spark — and, when an episode is linked, a transcript excerpt — is sent to the AI behind the active key only to write this feedback. Nothing is retried automatically.')}</p>
           </section>
 
           <section className="panel">

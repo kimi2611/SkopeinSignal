@@ -72,7 +72,8 @@ export function InsightsView() {
   const language = locale === 'zh-CN' ? 'Chinese' : locale === 'de' ? 'Deutsch' : 'English'
   const summaryErrorText: Record<string, string> = {
     SUMMARY_TOO_LARGE: t('This transcript is too long for a one-call summary. Generate a source-linked understanding record by section instead; your existing summary is unchanged.'),
-    AI_QUOTA_EXHAUSTED: t('The site owner’s AI quota is exhausted. Your transcript and any existing summary remain unchanged.'),
+    AI_QUOTA_EXHAUSTED: t('The active key’s AI quota is exhausted. Your transcript and any existing summary remain unchanged.'),
+    AI_BYOK_REQUIRED: t('AI needs a channel key: add your own DeepSeek key under Settings → AI keys, then retry.'),
     AI_MISCONFIGURED: t('AI is not configured for this site yet. You can still paste or import a summary below.'),
     AI_TRANSIENT: t('The AI service is busy. No request was retried automatically, and your existing summary was not replaced.'),
     AI_CONTENT_REJECTED: t('The AI declined this transcript. Your existing summary was not replaced.'),

@@ -242,7 +242,8 @@ export function ApplePencilStudio({ variant = 'notes' }: { variant?: 'notes' | '
     const message = error instanceof Error ? error.message : String(error)
     const code = message.match(/AI_[A-Z_]+|UNAUTHORIZED/)?.[0] ?? 'AI_UNKNOWN'
     const copy: Record<string, string> = {
-      AI_QUOTA_EXHAUSTED: t('The site owner’s AI quota is exhausted. Your drawing remains saved.'),
+      AI_QUOTA_EXHAUSTED: t('The active key’s AI quota is exhausted. Your drawing remains saved.'),
+    AI_BYOK_REQUIRED: t('AI needs a channel key: add your own DeepSeek key under Settings → AI keys, then retry.'),
       AI_VISION_UNAVAILABLE: t('No handwriting-capable vision model is available on this site yet. Your drawing remains saved.'),
       AI_CONTENT_REJECTED: t('The image could not be processed. Try a clearer note with fewer decorative marks.'),
       AI_TRANSIENT: t('The AI service is busy. Nothing was retried automatically; your drawing remains saved.'),

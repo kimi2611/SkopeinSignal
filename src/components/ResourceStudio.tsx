@@ -53,7 +53,8 @@ export function ResourceStudio({ initialEpisodeId = '', initialSparkId = '' }: R
   }).join(' | ') ?? ''
 
   const errorCopy: Record<string, string> = {
-    AI_QUOTA_EXHAUSTED: t('The site owner’s AI quota is exhausted. Your idea remains here; no search was retried.'),
+    AI_QUOTA_EXHAUSTED: t('The active key’s AI quota is exhausted. Your idea remains here; no search was retried.'),
+    AI_BYOK_REQUIRED: t('AI needs a channel key: add your own DeepSeek key under Settings → AI keys, then retry.'),
     AI_CONTENT_REJECTED: t('The AI declined this idea. Rephrase it as a researchable claim and try again.'),
     AI_MISCONFIGURED: t('AI is not configured for this site yet. Publish (or reopen) the site once, then retry.'),
     AI_TRANSIENT: t('The AI service is busy. Nothing was retried automatically; start the comparison again when ready.'),

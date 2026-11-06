@@ -99,7 +99,7 @@ export function CardsView() {
         view="cards"
         kicker={t('VOCABULARY / SPACED REPETITION')}
         title={t(moduleTitle(theme, 'cards'))}
-        copy={t('Every saved vocabulary entry becomes a card automatically — and whole word lists import in one batch. Review locally with Anki-style Again, Hard, Good, and Easy scheduling, or run a Quizlet-style written test: built locally for free, or by the site’s AI for harder distractors. No AnkiWeb account or synchronization.')}
+        copy={t('Every saved vocabulary entry becomes a card automatically — and whole word lists import in one batch. Review locally with Anki-style Again, Hard, Good, and Easy scheduling, or run a Quizlet-style written test: built locally for free, or by the AI behind the active key for harder distractors. No AnkiWeb account or synchronization.')}
         actions={<div className="cards-actions"><button type="button" className="btn btn-secondary" onClick={() => setShowImport((value) => !value)}><Import size={16} />{t(showImport ? 'Close import' : 'Import words')}</button><div className="cards-mode" role="group" aria-label={t('Deck mode')}><button type="button" className={mode === 'review' ? 'active' : ''} onClick={() => setMode('review')}><PencilLine size={15} />{t('Review')}</button><button type="button" className={mode === 'test' ? 'active' : ''} onClick={() => setMode('test')}><ClipboardList size={15} />{t('Test')}</button></div></div>}
       />
 
@@ -156,7 +156,7 @@ export function CardsView() {
         {mode === 'review' && deck.length > 1 && <section className="card-browser" aria-labelledby="card-browser-title"><div><span className="section-index">{t('03 / BROWSE')}</span><h2 id="card-browser-title">{t('Jump to a card')}</h2></div><div>{deck.slice(0, 24).map((entry) => <button type="button" key={entry.id} className={current?.id === entry.id ? 'active' : ''} onClick={() => chooseCard(entry.id)}><Brain size={14} /><strong>{entry.surface}</strong>{families.has(entry.id) && <em className="lemma-badge" title={t('Same word family: {forms}', { forms: families.get(entry.id)!.surfaces.join(', ') })}>{t('family ×{count}', { count: families.get(entry.id)!.memberIds.length })}</em>}<small>{isNew(progress.get(entry.id)) ? t('New') : isDue(progress.get(entry.id)) ? t('Due') : t('Scheduled')}</small></button>)}</div></section>}
       </>}
 
-      <p className="local-review-note"><Layers3 size={15} />{t('Local review by default; the AI test builder is optional, requires sign-in, and is billed to the site owner. Card schedules are included in workspace JSON backups; this site does not connect to or sync with AnkiWeb or Quizlet.')}</p>
+      <p className="local-review-note"><Layers3 size={15} />{t('Local review by default; the AI test builder is optional, requires sign-in, and is billed to the active key — the site AI by default, your own DeepSeek key once enabled under Settings → AI keys. Card schedules are included in workspace JSON backups; this site does not connect to or sync with AnkiWeb or Quizlet.')}</p>
     </div>
   )
 }

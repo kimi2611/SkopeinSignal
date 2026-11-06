@@ -90,7 +90,8 @@ export function UnderstandingStudio({ episode }: { episode: Episode }) {
   const errorText: Record<string, string> = {
     UNDERSTANDING_TOO_LARGE: t('This selection needs more than 12 analysis chunks. Choose Opening, Middle, or Closing, or split a very long transcript into chapters before importing.'),
     AI_EVIDENCE_NOT_GROUNDED: t('The AI could not return verbatim, segment-linked evidence. Nothing was saved; retry deliberately or choose a smaller section.'),
-    AI_QUOTA_EXHAUSTED: t('The site owner’s AI quota is exhausted. Your existing records and transcript remain available.'),
+    AI_QUOTA_EXHAUSTED: t('The active key’s AI quota is exhausted. Your existing records and transcript remain available.'),
+    AI_BYOK_REQUIRED: t('AI needs a channel key: add your own DeepSeek key under Settings → AI keys, then retry.'),
     AI_MISCONFIGURED: t('AI is not configured for this site yet. Existing notes and summaries still work.'),
     AI_TRANSIENT: t('The AI service is busy. No request was retried automatically; start again when ready.'),
     AI_CONTENT_REJECTED: t('The AI declined this transcript selection. Try another section.'),
@@ -168,7 +169,7 @@ function ThemeMapStudio() {
       const checked = selected.includes(record.id)
       return <label key={record.id}><input type="checkbox" checked={checked} onChange={() => setSelected((current) => checked ? current.filter((id) => id !== record.id) : [...current, record.id].slice(-12))} /><span><strong>{episode?.title ?? record.episodeId}</strong><small>{record.theme} · {new Date(record.updatedAt).toLocaleString(locale === 'en' ? 'en-US' : locale)} · {record.scope}</small></span></label>
     })}</div><button type="button" className="btn btn-primary" disabled={!isAuthenticated || selectedRecords.length < 2 || selectedEpisodeCount < 2 || generate.isPending} onClick={() => void build()}>{generate.isPending ? <><Loader2 size={16} className="spin" />{t('Comparing claims…')}</> : <><Network size={16} />{t('Build theme maps')}</>}</button><small>{t('One billable AI call, never automatically retried. Choose up to 12 record versions spanning at least two episodes.')}</small></div>
-    {error && <div className="cloud-sync-error" role="alert"><p>{error === 'AI_QUOTA_EXHAUSTED' ? t('The site owner’s AI quota is exhausted. Existing theme maps remain available.') : t('Theme maps could not be generated. Nothing was saved and no request was retried automatically.')}</p></div>}
+    {error && <div className="cloud-sync-error" role="alert"><p>{error === 'AI_QUOTA_EXHAUSTED' ? t('The active key’s AI quota is exhausted. Existing theme maps remain available.') : t('Theme maps could not be generated. Nothing was saved and no request was retried automatically.')}</p></div>}
     {!candidates.length && <p className="learning-empty">{t('Generate understanding records for at least two episodes before comparing themes.')}</p>}
     <div className="theme-map-list">{state.themeMaps.map((map) => <article key={map.id}><header><div><span className="section-index">{t('{count} EPISODES / SHARED INQUIRY', { count: map.episodeIds.length })}</span><h3>{map.title}</h3></div><button type="button" className="btn btn-ghost btn-icon" onClick={() => { if (window.confirm(t('Delete this theme map? Source records and notes are kept.'))) removeThemeMap(map.id) }} aria-label={t('Delete theme map')}><Trash2 size={16} /></button></header><p>{map.synthesis}</p><ul>{map.questions.map((item) => <li key={item}>{item}</li>)}</ul><div className="theme-claims">{map.claims.map((reference) => {
       const episode = state.episodes.find((item) => item.id === reference.episodeId)

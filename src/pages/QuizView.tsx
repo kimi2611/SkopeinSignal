@@ -251,7 +251,8 @@ export function QuizView({ onNavigate }: { onNavigate: (view: ViewKey) => void }
   const takenSurfaces = useMemo(() => new Set(state.vocabulary.map((entry) => entry.surface.trim().toLocaleLowerCase()).filter(Boolean)), [state.vocabulary])
 
   const aiErrorCopy: Record<string, string> = {
-    AI_QUOTA_EXHAUSTED: t('The site owner’s AI quota is exhausted, so the voice quiz is unavailable until the quota is topped up in Kimi.'),
+    AI_QUOTA_EXHAUSTED: t('The active key’s AI quota is exhausted, so the voice quiz is unavailable until that key is topped up.'),
+    AI_BYOK_REQUIRED: t('AI needs a channel key: add your own DeepSeek key under Settings → AI keys, then retry.'),
     AI_CONTENT_REJECTED: t('The AI declined this content. Try a different episode or a shorter excerpt.'),
     AI_MISCONFIGURED: t('AI is not configured for this site yet. Publish (or reopen) the site once, then retry.'),
     AI_TRANSIENT: t('The AI service is busy right now. Nothing was retried automatically — start the request again when you are ready.'),
@@ -279,7 +280,7 @@ export function QuizView({ onNavigate }: { onNavigate: (view: ViewKey) => void }
         <section className="panel quiz-gate">
           <UserRound size={22} />
           <h2>{t('Sign in to use the voice quiz')}</h2>
-          <p>{t('Question generation and grading run on the site’s AI quota. Signing in keeps that quota under the owner’s control and stores quiz history in your cloud workspace.')}</p>
+          <p>{t('Question generation and grading run on the active key — the site AI by default, your own DeepSeek key once you enable one. Signing in ties each call to your account and stores quiz history in your cloud workspace.')}</p>
           <button type="button" className="btn btn-primary" onClick={() => onNavigate('account')}>{t('Open My Account')}</button>
         </section>
       )}
@@ -331,7 +332,7 @@ export function QuizView({ onNavigate }: { onNavigate: (view: ViewKey) => void }
                   {generateMutation.isPending ? <><Loader2 size={16} className="spin" />{t('Generating questions…')}</> : practiceMode === 'short' ? <><Mic size={16} />{t('Generate short-answer questions')}</> : <><MessageSquareText size={16} />{t('Generate long-form questions')}</>}
                 </button>
               </div>
-              <p className="quiz-fineprint">{practiceMode === 'short' ? t('Short-answer questions use only the episode transcript excerpt and call for one or two spoken sentences. The excerpt is sent to the site’s AI; generation is never auto-retried.') : t('Long-form questions quote two to four transcript sentences and call for a developed spoken paragraph. The excerpt is sent to the site’s AI; generation is never auto-retried.')}</p>
+              <p className="quiz-fineprint">{practiceMode === 'short' ? t('Short-answer questions use only the episode transcript excerpt and call for one or two spoken sentences. The excerpt is sent to the AI behind the active key; generation is never auto-retried.') : t('Long-form questions quote two to four transcript sentences and call for a developed spoken paragraph. The excerpt is sent to the AI behind the active key; generation is never auto-retried.')}</p>
             </section>
           )}
 

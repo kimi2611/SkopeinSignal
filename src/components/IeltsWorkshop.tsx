@@ -238,7 +238,8 @@ export function IeltsWorkshop({ kind, onNavigate }: { kind: 'speaking' | 'writin
   }
 
   const errorCopy: Record<string, string> = {
-    AI_QUOTA_EXHAUSTED: t('The site owner’s AI quota is exhausted. Top it up in Kimi before using IELTS practice.'),
+    AI_QUOTA_EXHAUSTED: t('The active key’s AI quota is exhausted. Top it up before using IELTS practice.'),
+    AI_BYOK_REQUIRED: t('AI needs a channel key: add your own DeepSeek key under Settings → AI keys, then retry.'),
     AI_CONTENT_REJECTED: t('The AI declined this material. Try different notes or a shorter transcript excerpt.'),
     AI_MISCONFIGURED: t('AI is not configured for this site yet. Publish (or reopen) the site once, then retry.'),
     AI_TRANSIENT: t('The AI service is busy. Nothing was retried automatically; start the request again when ready.'),
@@ -248,7 +249,7 @@ export function IeltsWorkshop({ kind, onNavigate }: { kind: 'speaking' | 'writin
   }
 
   if (!authLoading && !isAuthenticated) {
-    return <section className="panel ielts-gate"><UserRound size={22} /><h2>{t('Sign in for IELTS practice')}</h2><p>{t('Paper generation and band feedback use the site owner’s AI quota. Your saved podcast material remains in your workspace.')}</p><button type="button" className="btn btn-primary" onClick={() => onNavigate('account')}>{t('Open My Account')}</button></section>
+    return <section className="panel ielts-gate"><UserRound size={22} /><h2>{t('Sign in for IELTS practice')}</h2><p>{t('Paper generation and band feedback use the active key — the site AI by default, your own DeepSeek key once enabled. Your saved podcast material remains in your workspace.')}</p><button type="button" className="btn btn-primary" onClick={() => onNavigate('account')}>{t('Open My Account')}</button></section>
   }
 
   const canGenerate = !!episode && (source === 'saved' ? !!savedSummary : source === 'snipd' ? snipdText.trim().length >= 80 : excerpt.length >= 200)
@@ -304,7 +305,7 @@ export function IeltsWorkshop({ kind, onNavigate }: { kind: 'speaking' | 'writin
         <div className="ielts-source-tabs" role="tablist" aria-label={t('Material source')}>{(['saved', 'snipd', 'ai'] as Source[]).map((item) => <button key={item} type="button" role="tab" aria-selected={source === item} className={source === item ? 'active' : ''} disabled={item === 'saved' && !savedSummary || item === 'ai' && excerpt.length < 200} onClick={() => setSource(item)}>{item === 'snipd' ? <FileInput size={15} /> : item === 'ai' ? <Sparkles size={15} /> : <BookOpenCheck size={15} />}{sourceLabels[item]}</button>)}</div>
         {source === 'saved' && savedSummary && <div className="ielts-source-note"><strong>{savedSummary.theme}</strong><p>{t('{arguments} core arguments and {evidence} evidence items will ground the paper.', { arguments: savedSummary.coreArguments.length, evidence: savedSummary.evidence.length })}</p></div>}
         {source === 'snipd' && <label className="form-stack"><span className="field-label">{t('Paste Snipd summary or key takeaways')}</span><textarea className="field textarea" rows={7} value={snipdText} onChange={(event) => setSnipdText(event.target.value)} placeholder={t('Paste the episode summary, key takeaways, or exported snips here…')} /><small className="form-hint">{t('This imports text you provide; the site does not access a private Snipd account. The AI structures only these notes into arguments and evidence.')}</small></label>}
-        {source === 'ai' && <label className="form-stack"><span className="field-label">{t('Summarising instruction (optional)')}</span><textarea className="field textarea" rows={3} maxLength={600} value={instruction} onChange={(event) => setInstruction(event.target.value)} placeholder={t('For example: focus on the strongest counterargument and the evidence that would test it…')} /><small className="form-hint">{t('Up to 8,000 transcript characters are sent to the site’s AI. No audio file is uploaded.')}</small></label>}
+        {source === 'ai' && <label className="form-stack"><span className="field-label">{t('Summarising instruction (optional)')}</span><textarea className="field textarea" rows={3} maxLength={600} value={instruction} onChange={(event) => setInstruction(event.target.value)} placeholder={t('For example: focus on the strongest counterargument and the evidence that would test it…')} /><small className="form-hint">{t('Up to 8,000 transcript characters are sent to the AI behind the active key. No audio file is uploaded.')}</small></label>}
         {timingModeControl}
         <button type="button" className="btn btn-primary" disabled={!canGenerate || generating} onClick={() => void generate()}>{generating ? <><Loader2 size={16} className="spin" />{t('Preparing your paper…')}</> : <><GraduationCap size={16} />{kind === 'speaking' ? t('Generate Speaking Parts 1–3') : t('Generate Writing Task 2')}</>}</button>
       </>}

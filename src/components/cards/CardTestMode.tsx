@@ -120,7 +120,8 @@ export function CardTestMode({ deck, all }: CardTestModeProps) {
   const current = questions[index]
 
   const errorCopy: Record<string, string> = {
-    AI_QUOTA_EXHAUSTED: t('The site owner’s AI quota is exhausted, so AI test building is unavailable until the quota is topped up in Kimi. The local builder stays free and ready.'),
+    AI_QUOTA_EXHAUSTED: t('The active key’s AI quota is exhausted, so AI test building is unavailable until that key is topped up. The local builder stays free and ready.'),
+    AI_BYOK_REQUIRED: t('AI needs a channel key: add your own DeepSeek key under Settings → AI keys, then retry.'),
     AI_CONTENT_REJECTED: t('The AI declined this word list. Try a different deck filter.'),
     AI_MISCONFIGURED: t('AI is not configured for this site yet. Publish (or reopen) the site once, then retry.'),
     AI_TRANSIENT: t('The AI service is busy right now. Nothing was retried automatically — the local builder is always available.'),
@@ -233,7 +234,7 @@ export function CardTestMode({ deck, all }: CardTestModeProps) {
             <ClipboardList size={15} /><span><strong>{t('Local builder')}</strong><small>{t('Free, offline — passage blanks from each card’s own context')}</small></span>
           </button>
           <button type="button" className={generator === 'ai' ? 'active' : ''} aria-pressed={generator === 'ai'} onClick={() => setGenerator('ai')} disabled={authLoading || !isAuthenticated} title={!isAuthenticated ? t('Sign in to use AI test building.') : undefined}>
-            <Sparkles size={15} /><span><strong>{t('AI builder')}</strong><small>{t('AI writes long quoted-passage questions — billed to the site owner')}</small></span>
+            <Sparkles size={15} /><span><strong>{t('AI builder')}</strong><small>{t('AI writes long quoted-passage questions — billed to the active key')}</small></span>
           </button>
         </div>
         {!authLoading && !isAuthenticated && <p className="form-hint">{t('The AI builder needs a signed-in account; the local builder works without one.')}</p>}
